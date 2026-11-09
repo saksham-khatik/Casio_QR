@@ -1,0 +1,880 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Casio QR Decoder</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1120;
+      --panel: rgba(21,31,50,.88);
+      --line: rgba(161,180,211,.17);
+      --text: #edf4ff;
+      --muted: #9aaac3;
+      --accent: #70a5ff;
+      --good: #43d6a0;
+      --bad: #ff7c8b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(900px 500px at 5% -10%, rgba(69,114,207,.22), transparent 60%),
+        radial-gradient(700px 500px at 100% 10%, rgba(126,83,201,.18), transparent 58%),
+        var(--bg);
+      color: var(--text);
+      font: 15px/1.5 system-ui, sans-serif;
+    }
+
+    .wrap {
+      width: min(1120px, calc(100% - 32px));
+      margin: auto;
+      padding: 38px 0 56px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    h1 {
+      font-size: clamp(25px,4vw,35px);
+      margin: 0;
+    }
+
+    .subtitle, .small-note { color: var(--muted); }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-head h2 { margin: 0; font-size: 17px; }
+
+    .panel-body { padding: 20px; }
+
+    .scanner-frame {
+      min-height: 260px;
+      background: #070c15;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+    }
+
+    video {
+      width: 100%;
+      max-height: 420px;
+      object-fit: cover;
+    }
+
+    .scan-placeholder {
+      text-align: center;
+      color: var(--muted);
+      padding: 35px;
+    }
+
+    .scan-overlay {
+      display: none;
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      place-items: center;
+    }
+
+    .scan-overlay::before {
+      content: "";
+      width: min(62%,230px);
+      aspect-ratio: 1;
+      border: 2px solid var(--accent);
+      border-radius: 18px;
+      box-shadow: 0 0 0 999px rgba(0,0,0,.15);
+    }
+
+    .scanner-frame.active .scan-overlay { display: grid; }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    button, .file-label {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 15px;
+      font: inherit;
+      font-weight: 650;
+      cursor: pointer;
+    }
+
+    .primary {
+      color: #071326;
+      background: linear-gradient(110deg,#8fc0ff,#a9a0ff);
+    }
+
+    .secondary, .file-label {
+      color: var(--text);
+      background: #25334b;
+      border: 1px solid var(--line);
+    }
+
+    button:disabled { opacity: .45; cursor: not-allowed; }
+
+    input[type=file] { display: none; }
+
+    .status {
+      margin-top: 13px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .camera-help {
+      display: block;
+      margin-top: 10px;
+      padding: 11px;
+      border-radius: 11px;
+      background: rgba(112,165,255,.08);
+      color: #bfd4f4;
+      font-size: 12px;
+    }
+
+    .camera-help.bad { color: #ffc0c8; }
+    .camera-help.good { color: #b7f1d9; }
+
+    .paste-area {
+      margin-top: 20px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 94px;
+      resize: vertical;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #0c1525;
+      color: var(--text);
+      padding: 12px;
+      font: 12px/1.55 monospace;
+    }
+
+    .result-empty {
+      min-height: 250px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .result-content { display: none; }
+    .result-content.visible { display: block; }
+
+    .decoded {
+      background: rgba(67,214,160,.08);
+      border: 1px solid rgba(67,214,160,.22);
+      border-radius: 15px;
+      padding: 17px;
+      margin-bottom: 18px;
+    }
+
+    .result-label {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 750;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .decoded-text {
+      font-size: 30px;
+      font-weight: 750;
+      overflow-wrap: anywhere;
+      color: #8cf0c8;
+    }
+
+    .data-block { margin-top: 16px; }
+
+    .data-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      background: #0b1423;
+      color: #c8d7ee;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      padding: 12px;
+      font: 12px/1.6 monospace;
+    }
+
+    .copy-btn {
+      padding: 6px 9px;
+      background: #263650;
+      color: white;
+    }
+
+    .error-box {
+      display: none;
+      margin-top: 14px;
+      color: #ffc0c8;
+      background: rgba(255,124,139,.08);
+      padding: 12px;
+      border-radius: 11px;
+    }
+
+    .error-box.visible { display: block; }
+
+    @media(max-width:820px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+<main class="wrap">
+
+  <header>
+    <div>
+      <h1>Casio QR Decoder</h1>
+      <p class="subtitle">
+        Scan a Casio QR code and recover its original message.
+      </p>
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>QR Code Scanner</h2>
+        <p>Camera, image upload or manual input.</p>
+      </div>
+
+      <div class="panel-body">
+
+        <div class="scanner-frame" id="scannerFrame">
+          <video id="video" playsinline autoplay muted hidden></video>
+
+          <div class="scan-placeholder" id="placeholder">
+            <strong>Camera Preview</strong>
+            <p>Start the scanner to scan a QR code.</p>
+          </div>
+
+          <div class="scan-overlay"></div>
+        </div>
+
+        <div class="controls">
+          <button class="primary" id="startBtn">Start camera</button>
+          <button class="secondary" id="stopBtn" disabled>Stop</button>
+
+          <label class="file-label" for="imageInput">
+            Upload QR image
+          </label>
+
+          <input id="imageInput" type="file" accept="image/*">
+        </div>
+
+        <div class="status" id="scanStatus">
+          Scanner is stopped.
+        </div>
+
+        <div class="camera-help" id="cameraHelp">
+          Checking camera support...
+        </div>
+
+        <div class="paste-area">
+          <label for="manualInput">
+            Paste Casio URL or binary string
+          </label>
+
+          <textarea id="manualInput"
+            placeholder="Paste your Casio URL here"></textarea>
+
+          <div class="controls">
+            <button class="primary" id="decodeBtn">Decode input</button>
+            <button class="secondary" id="clearBtn">Clear</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Decoded Message</h2>
+        <p>Automatically extracted results.</p>
+      </div>
+
+      <div class="panel-body">
+
+        <div class="result-empty" id="resultEmpty">
+          Nothing decoded yet.
+        </div>
+
+        <div class="result-content" id="resultContent">
+
+          <div class="decoded">
+            <div class="result-label">Decoded Message</div>
+            <div class="decoded-text" id="decodedMessage"></div>
+          </div>
+
+          <div class="data-block">
+            <div class="data-top">
+              <div class="result-label">Original Binary</div>
+              <button class="copy-btn" data-copy="binaryOutput">Copy</button>
+            </div>
+            <pre id="binaryOutput"></pre>
+          </div>
+
+          <div class="data-block">
+            <div class="data-top">
+              <div class="result-label">Hexadecimal</div>
+              <button class="copy-btn" data-copy="hexOutput">Copy</button>
+            </div>
+            <pre id="hexOutput"></pre>
+          </div>
+
+          <div class="data-block">
+            <div class="data-top">
+              <div class="result-label">Scanned Content</div>
+              <button class="copy-btn" data-copy="sourceOutput">Copy</button>
+            </div>
+            <pre id="sourceOutput"></pre>
+          </div>
+
+        </div>
+
+        <div class="error-box" id="errorBox"></div>
+
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<canvas id="canvas" hidden></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+
+<script>
+const $ = id => document.getElementById(id);
+
+const video = $('video');
+const canvas = $('canvas');
+const ctx = canvas.getContext('2d', {
+  willReadFrequently: true
+});
+
+let stream = null;
+let scanLoop = null;
+let lastScanned = '';
+let detector = null;
+let scanInProgress = false;
+let cameraRequestInProgress = false;
+
+// -------------------------------
+// DECODING FUNCTIONS
+// -------------------------------
+
+function bytesToText(bytes) {
+  return new TextDecoder('utf-8').decode(
+    new Uint8Array(bytes)
+  );
+}
+
+function decodeCasio(input) {
+  const raw = String(input || '').trim();
+
+  if (!raw) {
+    throw new Error('Enter a Casio URL or binary string.');
+  }
+
+  let payload = raw;
+
+  try {
+    if (/^https?:\/\//i.test(raw)) {
+      const url = new URL(raw);
+      payload = url.searchParams.get('q') || raw;
+    }
+  } catch (_) {}
+
+  const match =
+    payload.match(/(?:^|[\s&])E-([0-9a-f]+)(?=$|[\s&])/i) ||
+    raw.match(/[?&]E-([0-9a-f]+)/i);
+
+  if (match) {
+    const hex = match[1];
+
+    if (hex.length % 2 !== 0) {
+      throw new Error('Invalid hexadecimal length.');
+    }
+
+    const ascii = bytesToText(
+      hex.match(/.{2}/g).map(x => parseInt(x,16))
+    );
+
+    if (!/^[01]+$/.test(ascii)) {
+      throw new Error('E field does not contain binary digits.');
+    }
+
+    return buildResult(ascii, hex, raw, 'Casio E field');
+  }
+
+  const binary = raw.replace(/[\s_]/g,'');
+
+  if (/^[01]+$/.test(binary)) {
+    return buildResult(binary, '', raw, 'Raw binary');
+  }
+
+  throw new Error('No valid Casio E field or binary data found.');
+}
+
+function buildResult(binary, hex, source, mode) {
+  const count = Math.floor(binary.length / 8);
+
+  if (!count) {
+    throw new Error('Binary data is shorter than one byte.');
+  }
+
+  const bytes = [];
+
+  for (let i = 0; i < count; i++) {
+    bytes.push(parseInt(
+      binary.slice(i * 8, i * 8 + 8), 2
+    ));
+  }
+
+  return {
+    binary,
+    hex,
+    source,
+    mode,
+    message: bytesToText(bytes),
+    remainder: binary.length % 8
+  };
+}
+
+// -------------------------------
+// RESULT DISPLAY
+// -------------------------------
+
+function renderResult(result) {
+  clearError();
+
+  $('resultEmpty').style.display = 'none';
+  $('resultContent').classList.add('visible');
+
+  $('decodedMessage').textContent = result.message;
+
+  $('binaryOutput').textContent =
+    result.binary.match(/.{1,8}/g).join(' ');
+
+  $('hexOutput').textContent =
+    result.hex || 'Input was already binary.';
+
+  $('sourceOutput').textContent = result.source;
+
+  $('decodeMeta').textContent =
+    `Decoded ${Math.floor(result.binary.length / 8)} bytes.`;
+
+  setStatus('Message decoded successfully.');
+}
+
+function processContent(content) {
+  $('manualInput').value = content;
+
+  try {
+    renderResult(decodeCasio(content));
+  } catch (error) {
+    showError(error.message);
+  }
+}
+
+// -------------------------------
+// STATUS AND ERRORS
+// -------------------------------
+
+function setStatus(message) {
+  $('scanStatus').textContent = message;
+}
+
+function showError(message) {
+  const box = $('errorBox');
+  box.textContent = message;
+  box.classList.add('visible');
+}
+
+function clearError() {
+  $('errorBox').classList.remove('visible');
+  $('errorBox').textContent = '';
+}
+
+function setCameraHelp(message, kind = '') {
+  const el = $('cameraHelp');
+  el.className = 'camera-help' + (kind ? ' ' + kind : '');
+  el.textContent = message;
+}
+
+function updateCameraDiagnostics() {
+  if (window.self !== window.top) {
+    setCameraHelp(
+      'Embedded preview detected. Open the downloaded HTML directly in Chrome.',
+      'bad'
+    );
+  } else if (!window.isSecureContext) {
+    setCameraHelp(
+      'Camera access requires HTTPS, localhost or a supported local file.',
+      'bad'
+    );
+  } else if (
+    !navigator.mediaDevices ||
+    !navigator.mediaDevices.getUserMedia
+  ) {
+    setCameraHelp(
+      'Camera API is unavailable. Check Chrome settings.',
+      'bad'
+    );
+  } else {
+    setCameraHelp(
+      'Camera API available. Click Start camera.',
+      'good'
+    );
+  }
+}
+
+// -------------------------------
+// CAMERA ERROR HANDLING
+// -------------------------------
+
+function explainCameraError(err) {
+  const messages = {
+    NotAllowedError:
+      'Camera permission denied. Allow camera access in Chrome site settings.',
+    NotFoundError:
+      'No camera found. Connect a webcam.',
+    NotReadableError:
+      'Camera is already being used by another application.',
+    OverconstrainedError:
+      'The requested camera settings are not supported.',
+    SecurityError:
+      'Browser security blocked camera access.',
+    TypeError:
+      'Camera API is unavailable in this page context.'
+  };
+
+  return messages[err.name] ||
+    'Camera could not start. Check browser settings.';
+}
+
+// -------------------------------
+// START CAMERA
+// -------------------------------
+
+async function startCamera() {
+  if (cameraRequestInProgress || stream) return;
+
+  clearError();
+  updateCameraDiagnostics();
+
+  if (window.self !== window.top) {
+    showError(
+      'Open the downloaded HTML directly in Chrome, not inside a preview.'
+    );
+    return;
+  }
+
+  if (
+    !window.isSecureContext ||
+    !navigator.mediaDevices ||
+    !navigator.mediaDevices.getUserMedia
+  ) {
+    showError(
+      'Camera API is unavailable. Open using HTTPS, localhost or a supported local file.'
+    );
+    return;
+  }
+
+  cameraRequestInProgress = true;
+
+  $('startBtn').disabled = true;
+  $('startBtn').textContent = 'Requesting permission...';
+
+  setStatus('Requesting camera permission...');
+
+  try {
+    // Request camera only after user clicks the button.
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: false
+    });
+
+    video.srcObject = stream;
+    video.hidden = false;
+
+    $('placeholder').style.display = 'none';
+    $('scannerFrame').classList.add('active');
+
+    await video.play();
+
+    $('stopBtn').disabled = false;
+    $('startBtn').textContent = 'Camera running';
+
+    detector = null;
+
+    if ('BarcodeDetector' in window) {
+      try {
+        detector = new BarcodeDetector({
+          formats: ['qr_code']
+        });
+      } catch (_) {}
+    }
+
+    if (!detector && typeof window.jsQR !== 'function') {
+      throw new Error('QR scanning library failed to load.');
+    }
+
+    setStatus('Camera running. Point at a QR code.');
+    setCameraHelp('Camera connected. Scan your QR code.', 'good');
+
+    scanLoop = setInterval(scanFrame, 200);
+
+  } catch (err) {
+    showError(explainCameraError(err) + ' ' + err.message);
+    stopCamera();
+  } finally {
+    cameraRequestInProgress = false;
+
+    if (!stream) {
+      $('startBtn').disabled = false;
+      $('startBtn').textContent = 'Start camera';
+    }
+  }
+}
+
+// -------------------------------
+// QR SCANNER
+// -------------------------------
+
+async function scanFrame() {
+  if (
+    scanInProgress ||
+    !stream ||
+    video.readyState < 2 ||
+    video.videoWidth === 0
+  ) return;
+
+  scanInProgress = true;
+
+  try {
+    let text = null;
+
+    if (detector) {
+      const codes = await detector.detect(video);
+
+      if (codes.length) {
+        text = codes[0].rawValue;
+      }
+    }
+
+    if (!text && typeof window.jsQR === 'function') {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      ctx.drawImage(video, 0, 0);
+
+      const image = ctx.getImageData(
+        0, 0, canvas.width, canvas.height
+      );
+
+      const code = jsQR(
+        image.data,
+        image.width,
+        image.height,
+        { inversionAttempts: 'attemptBoth' }
+      );
+
+      if (code) text = code.data;
+    }
+
+    if (text && text !== lastScanned) {
+      lastScanned = text;
+      processContent(text);
+
+      setStatus('QR detected and decoded!');
+      stopCamera();
+    }
+
+  } catch (_) {
+    // Ignore individual frame errors.
+  } finally {
+    scanInProgress = false;
+  }
+}
+
+// -------------------------------
+// STOP CAMERA
+// -------------------------------
+
+function stopCamera() {
+  if (scanLoop) {
+    clearInterval(scanLoop);
+    scanLoop = null;
+  }
+
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop());
+    stream = null;
+  }
+
+  video.pause();
+  video.srcObject = null;
+  video.hidden = true;
+
+  $('scannerFrame').classList.remove('active');
+  $('placeholder').style.display = 'block';
+
+  $('startBtn').disabled = false;
+  $('startBtn').textContent = 'Start camera';
+  $('stopBtn').disabled = true;
+
+  scanInProgress = false;
+}
+
+// -------------------------------
+// IMAGE UPLOAD
+// -------------------------------
+
+async function scanImage(file) {
+  clearError();
+
+  if (!file) return;
+
+  if (!window.jsQR) {
+    showError('QR library failed to load. Check internet.');
+    return;
+  }
+
+  try {
+    const bitmap = await createImageBitmap(file);
+
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
+
+    ctx.drawImage(bitmap, 0, 0);
+    bitmap.close();
+
+    const image = ctx.getImageData(
+      0, 0, canvas.width, canvas.height
+    );
+
+    const code = jsQR(
+      image.data,
+      image.width,
+      image.height,
+      { inversionAttempts: 'attemptBoth' }
+    );
+
+    if (!code) {
+      throw new Error('No QR code found in this image.');
+    }
+
+    processContent(code.data);
+
+  } catch (err) {
+    showError(err.message);
+  }
+}
+
+// -------------------------------
+// BUTTON EVENTS
+// -------------------------------
+
+$('startBtn').addEventListener('click', startCamera);
+
+$('stopBtn').addEventListener('click', () => {
+  stopCamera();
+  setStatus('Scanner stopped.');
+});
+
+$('imageInput').addEventListener('change', event => {
+  scanImage(event.target.files[0]);
+});
+
+$('decodeBtn').addEventListener('click', () => {
+  processContent($('manualInput').value);
+});
+
+$('clearBtn').addEventListener('click', () => {
+  $('manualInput').value = '';
+  $('resultContent').classList.remove('visible');
+  $('resultEmpty').style.display = 'grid';
+  clearError();
+  setStatus('Scanner stopped.');
+});
+
+// -------------------------------
+// COPY BUTTONS
+// -------------------------------
+
+document.querySelectorAll('[data-copy]').forEach(button => {
+  button.addEventListener('click', async () => {
+    const value = $(button.dataset.copy).textContent;
+
+    try {
+      await navigator.clipboard.writeText(value);
+
+      button.textContent = 'Copied!';
+
+      setTimeout(() => {
+        button.textContent = 'Copy';
+      }, 1100);
+
+    } catch (_) {
+      showError('Clipboard blocked. Copy the text manually.');
+    }
+  });
+});
+
+window.addEventListener('pagehide', stopCamera);
+
+updateCameraDiagnostics();
+</script>
+
+</body>
+</html>
