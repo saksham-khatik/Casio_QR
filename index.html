@@ -406,7 +406,7 @@
     border: 1px solid rgba(58, 211, 156, .28);
     border-radius: 15px;
     padding: 16px 17px;
-    margin-bottom: 18px;
+    margin-bottom: 14px;
   }
 
   .decoded-top {
@@ -414,6 +414,14 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .decoded-label-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
   }
 
   .result-label {
@@ -422,6 +430,35 @@
     letter-spacing: .07em;
     text-transform: uppercase;
     color: var(--muted);
+  }
+
+  .kind-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 750;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    background: rgba(110, 168, 255, .14);
+    color: var(--accent);
+    border: 1px solid rgba(110, 168, 255, .30);
+  }
+  .kind-badge.kind-equation {
+    background: rgba(58, 211, 156, .12);
+    color: var(--good);
+    border-color: rgba(58, 211, 156, .30);
+  }
+  .kind-badge.kind-json {
+    background: rgba(242, 182, 75, .12);
+    color: var(--warn);
+    border-color: rgba(242, 182, 75, .30);
+  }
+  .kind-badge.kind-url {
+    background: rgba(160, 140, 255, .12);
+    color: var(--accent-2);
+    border-color: rgba(160, 140, 255, .30);
   }
 
   .decoded-text {
@@ -435,7 +472,7 @@
   }
 
   .result-meta {
-    margin-top: 10px;
+    margin-bottom: 16px;
     font-size: 12.5px;
     color: var(--muted);
   }
@@ -448,6 +485,7 @@
     justify-content: space-between;
     gap: 12px;
     margin-bottom: 8px;
+    flex-wrap: wrap;
   }
 
   pre {
@@ -460,9 +498,11 @@
     border-radius: 11px;
     padding: 12px;
     font: 12px/1.65 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    max-height: 220px;
+    max-height: 240px;
     overflow: auto;
   }
+
+  pre a { color: var(--accent); text-decoration: underline; }
 
   .copy-btn {
     padding: 6px 11px;
@@ -476,6 +516,99 @@
 
   .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
 
+  /* ============ EQUATION LIST ============ */
+  .equation-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .equation-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--field);
+    border: 1px solid var(--line);
+    font-size: 13px;
+    overflow-wrap: anywhere;
+  }
+
+  .equation-item .eq-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 4px;
+    flex: none;
+  }
+
+  .equation-item .eq-label {
+    font-weight: 700;
+    color: var(--muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  .equation-item code {
+    color: var(--text);
+    font: inherit;
+    font-size: 14px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  .equation-item code sup { font-size: .78em; vertical-align: super; line-height: 0; }
+
+  /* ============ GRAPH ============ */
+  .graph-wrap {
+    position: relative;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    overflow: hidden;
+    background: var(--field);
+  }
+
+  #graphCanvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    touch-action: none;
+    cursor: grab;
+  }
+
+  #graphCanvas:active { cursor: grabbing; }
+
+  .graph-actions { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+
+  .graph-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .legend-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--field);
+    border: 1px solid var(--line);
+    font-size: 12px;
+    color: var(--muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    max-width: 100%;
+  }
+
+  .legend-chip .eq-swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    flex: none;
+  }
+
+  .legend-chip sup { font-size: .78em; vertical-align: super; line-height: 0; }
+
+  /* ============ ERROR ============ */
   .error-box {
     display: none;
     margin-top: 16px;
@@ -513,7 +646,7 @@
       </span>
       <div class="brand-text">
         <h1>Casio QR Decoder</h1>
-        <p class="subtitle">Scan a Casio QR code and recover its original message.</p>
+        <p class="subtitle">Scan a Casio QR code and recover its message — with formula &amp; graph preview.</p>
       </div>
     </div>
 
@@ -567,9 +700,9 @@
         <div class="camera-help" id="cameraHelp">Checking camera support…</div>
 
         <div class="paste-area">
-          <label for="manualInput">Paste a Casio URL or binary string</label>
+          <label for="manualInput">Paste a Casio URL, binary string, equation, or JSON</label>
           <textarea id="manualInput" spellcheck="false"
-            placeholder="https://… or 010011010110…"></textarea>
+            placeholder="https://… · 010011010110… · y = x^2 + 1 · {&quot;a&quot;:1}"></textarea>
 
           <div class="controls">
             <button class="primary" id="decodeBtn" type="button">Decode input</button>
@@ -584,7 +717,7 @@
     <section class="panel">
       <div class="panel-head">
         <h2>Decoded Message</h2>
-        <p>Results are extracted automatically.</p>
+        <p>Results are extracted and previewed automatically.</p>
       </div>
 
       <div class="panel-body">
@@ -597,7 +730,10 @@
 
           <div class="decoded">
             <div class="decoded-top">
-              <span class="result-label">Decoded message</span>
+              <div class="decoded-label-group">
+                <span class="result-label">Decoded message</span>
+                <span class="kind-badge" id="contentKind" hidden></span>
+              </div>
               <button class="copy-btn" type="button" data-copy="decodedMessage">Copy</button>
             </div>
             <div class="decoded-text" id="decodedMessage"></div>
@@ -605,6 +741,40 @@
 
           <div class="result-meta" id="decodeMeta"></div>
 
+          <!-- Parsed content (JSON / URL) -->
+          <div class="data-block" id="contentBlock" hidden>
+            <div class="data-top">
+              <span class="result-label">Parsed content</span>
+              <button class="copy-btn" type="button" data-copy="contentOutput">Copy</button>
+            </div>
+            <pre id="contentOutput"></pre>
+          </div>
+
+          <!-- Detected equations -->
+          <div class="data-block" id="equationBlock" hidden>
+            <div class="data-top">
+              <span class="result-label">Detected equations</span>
+            </div>
+            <div class="equation-list" id="equationList"></div>
+          </div>
+
+          <!-- Graph preview -->
+          <div class="data-block" id="graphBlock" hidden>
+            <div class="data-top">
+              <span class="result-label">Graph</span>
+              <div class="graph-actions">
+                <button class="copy-btn" type="button" id="graphZoomIn" title="Zoom in">+</button>
+                <button class="copy-btn" type="button" id="graphZoomOut" title="Zoom out">−</button>
+                <button class="copy-btn" type="button" id="graphReset" title="Reset view">Reset</button>
+              </div>
+            </div>
+            <div class="graph-wrap">
+              <canvas id="graphCanvas"></canvas>
+            </div>
+            <div class="graph-legend" id="graphLegend"></div>
+          </div>
+
+          <!-- Raw data -->
           <div class="data-block">
             <div class="data-top">
               <span class="result-label">Original binary</span>
@@ -654,7 +824,7 @@
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
   const SCAN_INTERVAL_MS = 200;
-  const MAX_SCAN_EDGE = 960;   // downscale frames for speed + stability
+  const MAX_SCAN_EDGE = 960;
 
   let stream = null;
   let scanTimer = null;
@@ -678,6 +848,10 @@
     btn.setAttribute('aria-label',
       theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme');
     try { localStorage.setItem(THEME_KEY, theme); } catch (_) {}
+
+    if (graphState.equations.length) {
+      try { drawGraph(); } catch (_) {}
+    }
   }
 
   function initTheme() {
@@ -699,7 +873,337 @@
   });
 
   /* =========================================================
-     DECODING
+     HELPERS
+     ========================================================= */
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function prettifyExpr(expr) {
+    return escapeHtml(expr)
+      .replace(/\^(-?\d+)/g, '<sup>$1</sup>')
+      .replace(/\^\(([^)]+)\)/g, '<sup>($1)</sup>')
+      .replace(/\^([a-zA-Z])/g, '<sup>$1</sup>')
+      .replace(/\*/g, '·');
+  }
+
+  /* =========================================================
+     EXPRESSION ENGINE  (safe, no eval)
+     ========================================================= */
+  const FUNC_NAMES = [
+    'arcsin', 'arccos', 'arctan', 'sinh', 'cosh', 'tanh',
+    'asin', 'acos', 'atan', 'sin', 'cos', 'tan',
+    'ln', 'log', 'sqrt', 'abs', 'exp', 'floor', 'ceil', 'round', 'sign'
+  ].sort((a, b) => b.length - a.length);
+
+  const FUNC_IMPL = {
+    sin: Math.sin, cos: Math.cos, tan: Math.tan,
+    asin: Math.asin, acos: Math.acos, atan: Math.atan,
+    arcsin: Math.asin, arccos: Math.acos, arctan: Math.atan,
+    sinh: Math.sinh, cosh: Math.cosh, tanh: Math.tanh,
+    ln: Math.log, log: Math.log10,
+    sqrt: Math.sqrt, abs: Math.abs, exp: Math.exp,
+    floor: Math.floor, ceil: Math.ceil, round: Math.round,
+    sign: Math.sign
+  };
+
+  function tokenize(src) {
+    const s = src.replace(/\s+/g, '');
+    const tokens = [];
+    let i = 0;
+
+    while (i < s.length) {
+      const c = s[i];
+
+      // number
+      if (/[0-9.]/.test(c)) {
+        let j = i;
+        while (j < s.length && /[0-9.]/.test(s[j])) j++;
+        const num = parseFloat(s.slice(i, j));
+        if (!isFinite(num)) throw new Error('Invalid number');
+        tokens.push({ t: 'num', v: num });
+        i = j;
+        continue;
+      }
+
+      // function name
+      let fn = null;
+      for (const name of FUNC_NAMES) {
+        if (s.slice(i, i + name.length).toLowerCase() === name) {
+          fn = name;
+          break;
+        }
+      }
+      if (fn) {
+        tokens.push({ t: 'func', v: fn });
+        i += fn.length;
+        continue;
+      }
+
+      // pi / tau
+      if (s.slice(i, i + 2).toLowerCase() === 'pi') {
+        tokens.push({ t: 'num', v: Math.PI }); i += 2; continue;
+      }
+      if (c === 'π') { tokens.push({ t: 'num', v: Math.PI }); i++; continue; }
+      if (c === 'τ' || s.slice(i, i + 3).toLowerCase() === 'tau') {
+        tokens.push({ t: 'num', v: Math.PI * 2 });
+        i += c === 'τ' ? 1 : 3;
+        continue;
+      }
+
+      // e (only when not part of a word)
+      if (c === 'e' && !/[a-zA-Z]/.test(s[i + 1] || '')) {
+        tokens.push({ t: 'num', v: Math.E }); i++; continue;
+      }
+
+      if ('+-*/^(),='.includes(c)) {
+        tokens.push({ t: c }); i++; continue;
+      }
+
+      if (/[a-zA-Z]/.test(c)) {
+        tokens.push({ t: 'var', v: c.toLowerCase() }); i++; continue;
+      }
+
+      throw new Error('Unexpected character');
+    }
+
+    return tokens;
+  }
+
+  function parseTokens(tokens) {
+    let pos = 0;
+    const peek = () => tokens[pos];
+    const next = () => tokens[pos++];
+    const expect = (t) => {
+      const tok = next();
+      if (!tok || tok.t !== t) throw new Error('Expected "' + t + '"');
+      return tok;
+    };
+    const startsFactor = (tok) =>
+      tok && (tok.t === 'num' || tok.t === 'var' || tok.t === 'func' || tok.t === '(');
+
+    function parseExpr() {
+      let node = parseTerm();
+      while (peek() && (peek().t === '+' || peek().t === '-')) {
+        const op = next().t;
+        node = { op, a: node, b: parseTerm() };
+      }
+      return node;
+    }
+
+    function parseTerm() {
+      let node = parseUnary();
+      while (true) {
+        const tok = peek();
+        if (!tok) break;
+        if (tok.t === '*' || tok.t === '/') {
+          next();
+          node = { op: tok.t, a: node, b: parseUnary() };
+        } else if (startsFactor(tok)) {
+          // implicit multiplication: 2x, 3(x+1), xsin(x), (x+1)(x-1)
+          node = { op: '*', a: node, b: parseUnary() };
+        } else break;
+      }
+      return node;
+    }
+
+    function parseUnary() {
+      const tok = peek();
+      if (tok && tok.t === '-') { next(); return { op: 'neg', a: parseUnary() }; }
+      if (tok && tok.t === '+') { next(); return parseUnary(); }
+      return parsePower();
+    }
+
+    function parsePower() {
+      const base = parsePrimary();
+      if (peek() && peek().t === '^') {
+        next();
+        return { op: '^', a: base, b: parseUnary() };
+      }
+      return base;
+    }
+
+    function parsePrimary() {
+      const tok = next();
+      if (!tok) throw new Error('Unexpected end of expression');
+      if (tok.t === 'num') return { op: 'num', v: tok.v };
+      if (tok.t === 'var') return { op: 'var', v: tok.v };
+      if (tok.t === 'func') {
+        expect('(');
+        const args = [parseExpr()];
+        while (peek() && peek().t === ',') { next(); args.push(parseExpr()); }
+        expect(')');
+        return { op: 'func', name: tok.v, args };
+      }
+      if (tok.t === '(') {
+        const node = parseExpr();
+        expect(')');
+        return node;
+      }
+      throw new Error('Unexpected token');
+    }
+
+    const ast = parseExpr();
+    if (pos !== tokens.length) throw new Error('Unexpected trailing tokens');
+    return ast;
+  }
+
+  function evaluate(node, env) {
+    switch (node.op) {
+      case 'num': return node.v;
+      case 'var': {
+        const v = env[node.v];
+        if (v === undefined) throw new Error('Unknown variable "' + node.v + '"');
+        return v;
+      }
+      case 'neg': return -evaluate(node.a, env);
+      case '+': return evaluate(node.a, env) + evaluate(node.b, env);
+      case '-': return evaluate(node.a, env) - evaluate(node.b, env);
+      case '*': return evaluate(node.a, env) * evaluate(node.b, env);
+      case '/': return evaluate(node.a, env) / evaluate(node.b, env);
+      case '^': return Math.pow(evaluate(node.a, env), evaluate(node.b, env));
+      case 'func': {
+        const fn = FUNC_IMPL[node.name];
+        if (!fn) throw new Error('Unknown function');
+        return fn.apply(null, node.args.map((a) => evaluate(a, env)));
+      }
+      default: throw new Error('Unknown operator');
+    }
+  }
+
+  function collectVars(node, set) {
+    if (!node) return;
+    if (node.op === 'var') set.add(node.v);
+    else if (node.op === 'func') node.args.forEach((a) => collectVars(a, set));
+    else if (node.op === 'neg') collectVars(node.a, set);
+    else { collectVars(node.a, set); collectVars(node.b, set); }
+  }
+
+  /* =========================================================
+     CONTENT ANALYSIS
+     ========================================================= */
+  const KIND_LABEL = {
+    equation: 'Equation',
+    json: 'JSON',
+    url: 'URL',
+    text: 'Text'
+  };
+
+  function tryParseEquation(rawLine) {
+    let line = String(rawLine || '').trim();
+    if (!line) return null;
+
+    // strip trailing punctuation that likely isn't part of the expression
+    line = line.replace(/[.,;:]+$/, '').trim();
+    if (!line) return null;
+
+    // Require x, an operator/function, or an '=' so plain words are ignored.
+    const looksMathematical =
+      /x/i.test(line) ||
+      /=/.test(line) ||
+      /[+\-*/^]/.test(line) ||
+      FUNC_NAMES.some((f) => new RegExp('\\b' + f + '\\s*\\(', 'i').test(line));
+
+    if (!looksMathematical) return null;
+
+    let body = line;
+    let name = null;
+
+    const m = line.match(/^([A-Za-z]\d*|f\s*\(\s*x\s*\))\s*=\s*(.+)$/);
+    if (m) {
+      name = m[1].replace(/\s+/g, '');
+      body = m[2].trim();
+    }
+
+    if (!body) return null;
+
+    let ast, vars = new Set();
+    try {
+      ast = parseTokens(tokenize(body));
+      collectVars(ast, vars);
+    } catch (_) {
+      return null;
+    }
+
+    // Only allow the independent variable x for now.
+    for (const v of vars) {
+      if (v !== 'x') return null;
+    }
+
+    const lowerName = (name || '').toLowerCase();
+
+    // Vertical line: x = constant
+    if (!vars.size && (lowerName === 'x' || lowerName === 'x1')) {
+      let cv;
+      try { cv = evaluate(ast, {}); } catch (_) { return null; }
+      if (!isFinite(cv)) return null;
+      return {
+        name: name || 'x',
+        expr: body,
+        ast,
+        vars,
+        vertical: true,
+        constantValue: cv
+      };
+    }
+
+    // Horizontal / general y = f(x) — validate at one point
+    try { evaluate(ast, { x: 0 }); } catch (_) { return null; }
+
+    return {
+      name: name || 'y',
+      expr: body,
+      ast,
+      vars,
+      vertical: false
+    };
+  }
+
+  function analyzeContent(message) {
+    const analysis = { kind: 'text', equations: [], json: null, url: null };
+    const trimmed = String(message || '').trim();
+    if (!trimmed) return analysis;
+
+    if (/^https?:\/\/\S+$/i.test(trimmed)) {
+      analysis.kind = 'url';
+      analysis.url = trimmed;
+      return analysis;
+    }
+
+    if (/^[\[{]/.test(trimmed)) {
+      try {
+        analysis.json = JSON.parse(trimmed);
+        analysis.kind = 'json';
+        return analysis;
+      } catch (_) { /* fall through */ }
+    }
+
+    const lines = trimmed.split(/[\n;]+/).map((s) => s.trim()).filter(Boolean);
+
+    if (lines.length > 0 && lines.length <= 8) {
+      const equations = [];
+      for (const line of lines) {
+        const eq = tryParseEquation(line);
+        if (!eq) { equations.length = 0; break; }
+        equations.push(eq);
+      }
+      if (equations.length === lines.length && equations.length > 0) {
+        analysis.kind = 'equation';
+        analysis.equations = equations;
+        return analysis;
+      }
+    }
+
+    return analysis;
+  }
+
+  /* =========================================================
+     DECODING (Casio E field / binary)
      ========================================================= */
   function bytesToText(bytes) {
     return new TextDecoder('utf-8').decode(new Uint8Array(bytes));
@@ -799,7 +1303,61 @@
 
     $('decodeMeta').textContent = `${result.mode} · ${bytes} byte(s)${rest}`;
 
+    updateAnalysisUI(result.message);
+
     setStatus('Message decoded successfully.', 'live');
+  }
+
+  function updateAnalysisUI(message) {
+    const analysis = analyzeContent(message);
+    const badge = $('contentKind');
+
+    if (analysis.kind === 'text') {
+      badge.hidden = true;
+      badge.className = 'kind-badge';
+      badge.textContent = '';
+    } else {
+      badge.hidden = false;
+      badge.className = 'kind-badge kind-' + analysis.kind;
+      badge.textContent = KIND_LABEL[analysis.kind];
+    }
+
+    const contentBlock = $('contentBlock');
+    const equationBlock = $('equationBlock');
+    const graphBlock = $('graphBlock');
+
+    // ---------- JSON / URL content ----------
+    if (analysis.kind === 'json') {
+      $('contentOutput').textContent = JSON.stringify(analysis.json, null, 2);
+      contentBlock.hidden = false;
+    } else if (analysis.kind === 'url') {
+      const pre = $('contentOutput');
+      pre.innerHTML = '';
+      const a = document.createElement('a');
+      a.href = analysis.url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.textContent = analysis.url;
+      pre.appendChild(a);
+      contentBlock.hidden = false;
+    } else {
+      $('contentOutput').textContent = '';
+      contentBlock.hidden = true;
+    }
+
+    // ---------- Equations / graph ----------
+    if (analysis.kind === 'equation') {
+      renderEquationBlock(analysis.equations);
+      equationBlock.hidden = false;
+      renderGraphBlock(analysis.equations);
+    } else {
+      equationBlock.hidden = true;
+      graphBlock.hidden = true;
+      $('equationList').innerHTML = '';
+      $('graphLegend').innerHTML = '';
+      graphState.equations = [];
+      graphState.view = defaultView();
+    }
   }
 
   function processContent(content) {
@@ -813,6 +1371,296 @@
       setStatus('Could not decode the content.', 'error');
       return false;
     }
+  }
+
+  /* =========================================================
+     EQUATION + GRAPH UI
+     ========================================================= */
+  const EQ_COLORS = ['#6ea8ff', '#3ad39c', '#f2b64b', '#a08cff', '#ff7f8e', '#4dd0e1'];
+
+  const graphState = {
+    equations: [],
+    view: { xMin: -10, xMax: 10, yMin: -10, yMax: 10 }
+  };
+
+  function defaultView() {
+    return { xMin: -10, xMax: 10, yMin: -10, yMax: 10 };
+  }
+
+  function renderEquationBlock(equations) {
+    const list = $('equationList');
+    list.innerHTML = '';
+
+    equations.forEach((eq, i) => {
+      const item = document.createElement('div');
+      item.className = 'equation-item';
+
+      const swatch = document.createElement('span');
+      swatch.className = 'eq-swatch';
+      swatch.style.background = EQ_COLORS[i % EQ_COLORS.length];
+
+      const label = document.createElement('span');
+      label.className = 'eq-label';
+      label.textContent = eq.name + ' =';
+
+      const code = document.createElement('code');
+      code.innerHTML = prettifyExpr(eq.expr);
+      if (eq.vertical) code.innerHTML += ' <span style="opacity:.6">(vertical)</span>';
+
+      item.appendChild(swatch);
+      item.appendChild(label);
+      item.appendChild(code);
+      list.appendChild(item);
+    });
+  }
+
+  function autoFitY(equations, xMin, xMax) {
+    let yMin = Infinity;
+    let yMax = -Infinity;
+    const N = 200;
+
+    equations.forEach((eq) => {
+      if (eq.vertical) return;
+      for (let i = 0; i <= N; i++) {
+        const x = xMin + (i / N) * (xMax - xMin);
+        let y;
+        try { y = evaluate(eq.ast, { x }); } catch (_) { continue; }
+        if (!isFinite(y) || Math.abs(y) > 1e8) continue;
+        if (y < yMin) yMin = y;
+        if (y > yMax) yMax = y;
+      }
+    });
+
+    if (!isFinite(yMin) || !isFinite(yMax)) {
+      return { yMin: -10, yMax: 10 };
+    }
+
+    if (yMax - yMin < 0.1) {
+      const mid = (yMin + yMax) / 2;
+      yMin = mid - 1;
+      yMax = mid + 1;
+    }
+
+    const pad = (yMax - yMin) * 0.08;
+    return { yMin: yMin - pad, yMax: yMax + pad };
+  }
+
+  function renderGraphBlock(equations) {
+    graphState.equations = equations;
+
+    const base = { xMin: -10, xMax: 10 };
+    const yRange = autoFitY(equations, base.xMin, base.xMax);
+    graphState.view = {
+      xMin: base.xMin,
+      xMax: base.xMax,
+      yMin: yRange.yMin,
+      yMax: yRange.yMax
+    };
+
+    const legend = $('graphLegend');
+    legend.innerHTML = '';
+
+    equations.forEach((eq, i) => {
+      const chip = document.createElement('span');
+      chip.className = 'legend-chip';
+
+      const swatch = document.createElement('span');
+      swatch.className = 'eq-swatch';
+      swatch.style.background = EQ_COLORS[i % EQ_COLORS.length];
+
+      const text = document.createElement('span');
+      text.innerHTML = `${escapeHtml(eq.name)} = ${prettifyExpr(eq.expr)}`;
+
+      chip.appendChild(swatch);
+      chip.appendChild(text);
+      legend.appendChild(chip);
+    });
+
+    $('graphBlock').hidden = false;
+    drawGraph();
+  }
+
+  function niceStep(range, targetTicks) {
+    const raw = range / Math.max(2, targetTicks);
+    const pow = Math.pow(10, Math.floor(Math.log10(raw)));
+    const norm = raw / pow;
+    let step;
+    if (norm < 1.5) step = 1;
+    else if (norm < 3) step = 2;
+    else if (norm < 7) step = 5;
+    else step = 10;
+    return step * pow;
+  }
+
+  function formatTick(v) {
+    if (v === 0) return '0';
+    const abs = Math.abs(v);
+    if (abs >= 1000 || abs < 0.001) return v.toExponential(0);
+    return v.toFixed(2).replace(/\.?0+$/, '');
+  }
+
+  function drawGraph() {
+    const canvasEl = $('graphCanvas');
+    if (!canvasEl || !graphState.equations.length) return;
+
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    const colors = {
+      bg: isLight ? '#ffffff' : '#0b1320',
+      grid: isLight ? 'rgba(21,45,82,.10)' : 'rgba(155,178,214,.10)',
+      axis: isLight ? 'rgba(21,45,82,.55)' : 'rgba(200,215,238,.55)',
+      text: isLight ? '#5c6f8b' : '#93a5c0'
+    };
+
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const cssW = canvasEl.clientWidth || 640;
+    const cssH = Math.max(220, Math.round(cssW * 0.62));
+
+    canvasEl.width = Math.round(cssW * dpr);
+    canvasEl.height = Math.round(cssH * dpr);
+    canvasEl.style.height = cssH + 'px';
+
+    const g = canvasEl.getContext('2d');
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const W = cssW;
+    const H = cssH;
+    const view = graphState.view;
+
+    const xToPx = (x) => (x - view.xMin) / (view.xMax - view.xMin) * W;
+    const yToPx = (y) => (view.yMax - y) / (view.yMax - view.yMin) * H;
+
+    // background
+    g.fillStyle = colors.bg;
+    g.fillRect(0, 0, W, H);
+
+    // ---- grid ----
+    const xStep = niceStep(view.xMax - view.xMin, 8);
+    const yStep = niceStep(view.yMax - view.yMin, 6);
+
+    g.strokeStyle = colors.grid;
+    g.lineWidth = 1;
+    g.beginPath();
+    for (let x = Math.ceil(view.xMin / xStep) * xStep; x <= view.xMax; x += xStep) {
+      const px = xToPx(x);
+      g.moveTo(px, 0);
+      g.lineTo(px, H);
+    }
+    for (let y = Math.ceil(view.yMin / yStep) * yStep; y <= view.yMax; y += yStep) {
+      const py = yToPx(y);
+      g.moveTo(0, py);
+      g.lineTo(W, py);
+    }
+    g.stroke();
+
+    // ---- axes ----
+    g.strokeStyle = colors.axis;
+    g.lineWidth = 1.5;
+    g.beginPath();
+    if (view.yMin <= 0 && view.yMax >= 0) {
+      const py = yToPx(0);
+      g.moveTo(0, py);
+      g.lineTo(W, py);
+    }
+    if (view.xMin <= 0 && view.xMax >= 0) {
+      const px = xToPx(0);
+      g.moveTo(px, 0);
+      g.lineTo(px, H);
+    }
+    g.stroke();
+
+    // ---- tick labels ----
+    g.fillStyle = colors.text;
+    g.font = '11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+
+    const xAxisY = (view.yMin <= 0 && view.yMax >= 0) ? yToPx(0) : H - 14;
+    g.textAlign = 'center';
+    g.textBaseline = 'top';
+    for (let x = Math.ceil(view.xMin / xStep) * xStep; x <= view.xMax; x += xStep) {
+      if (Math.abs(x) < 1e-9) continue;
+      const px = xToPx(x);
+      g.fillText(formatTick(x), px, Math.min(H - 14, xAxisY + 4));
+    }
+
+    const yAxisX = (view.xMin <= 0 && view.xMax >= 0) ? xToPx(0) : 4;
+    g.textAlign = 'right';
+    g.textBaseline = 'middle';
+    for (let y = Math.ceil(view.yMin / yStep) * yStep; y <= view.yMax; y += yStep) {
+      if (Math.abs(y) < 1e-9) continue;
+      const py = yToPx(y);
+      g.fillText(formatTick(y), Math.max(4, Math.min(W - 4, yAxisX - 5)), py);
+    }
+
+    // ---- plot curves ----
+    const CLIP = H * 1.5;
+
+    graphState.equations.forEach((eq, i) => {
+      const color = EQ_COLORS[i % EQ_COLORS.length];
+      g.strokeStyle = color;
+      g.lineWidth = 2;
+      g.lineJoin = 'round';
+      g.lineCap = 'round';
+
+      if (eq.vertical) {
+        if (eq.constantValue >= view.xMin && eq.constantValue <= view.xMax) {
+          const px = xToPx(eq.constantValue);
+          g.save();
+          g.setLineDash([5, 5]);
+          g.beginPath();
+          g.moveTo(px, 0);
+          g.lineTo(px, H);
+          g.stroke();
+          g.restore();
+        }
+        return;
+      }
+
+      g.beginPath();
+      let prevPy = null;
+
+      for (let px = 0; px <= W; px += 1) {
+        const x = view.xMin + (px / W) * (view.xMax - view.xMin);
+        let y;
+        try { y = evaluate(eq.ast, { x }); } catch (_) { y = NaN; }
+
+        if (!isFinite(y)) { prevPy = null; continue; }
+
+        const py = yToPx(y);
+
+        if (prevPy === null) {
+          g.moveTo(px, py);
+        } else if (Math.abs(py - prevPy) > CLIP) {
+          // likely an asymptote — break the line
+          g.moveTo(px, py);
+        } else {
+          g.lineTo(px, py);
+        }
+        prevPy = py;
+      }
+      g.stroke();
+    });
+  }
+
+  function zoomGraph(factor) {
+    const v = graphState.view;
+    const cx = (v.xMin + v.xMax) / 2;
+    const cy = (v.yMin + v.yMax) / 2;
+    const xr = (v.xMax - v.xMin) * factor;
+    const yr = (v.yMax - v.yMin) * factor;
+
+    graphState.view = {
+      xMin: cx - xr / 2,
+      xMax: cx + xr / 2,
+      yMin: cy - yr / 2,
+      yMax: cy + yr / 2
+    };
+    drawGraph();
+  }
+
+  function resetGraph() {
+    if (!graphState.equations.length) return;
+    const yRange = autoFitY(graphState.equations, -10, 10);
+    graphState.view = { xMin: -10, xMax: 10, yMin: yRange.yMin, yMax: yRange.yMax };
+    drawGraph();
   }
 
   /* =========================================================
@@ -892,16 +1740,11 @@
     const label = (device.label || '').toLowerCase();
     let score = 0;
 
-    // Strong preference for rear / main cameras.
     if (/(back|rear|environment|world|outdoor)/.test(label)) score += 100;
-    // Strong preference against front / selfie cameras.
     if (/(front|user|face|selfie|内カメラ|前置)/.test(label)) score -= 100;
-    // Slightly prefer external / USB cameras.
     if (/(usb|external|capture)/.test(label)) score += 5;
-    // Deprioritise virtual cameras.
     if (/(virtual|obs|snap camera|manycam|droidcam|iriun|epoccam)/.test(label)) score -= 60;
 
-    // Stable tie-break: earlier entries win.
     return score - index * 0.001;
   }
 
@@ -995,7 +1838,6 @@
         audio: false
       });
     } catch (err) {
-      // Fall back to "any camera" for constraint-only failures.
       if (err && ['OverconstrainedError', 'ConstraintNotSatisfiedError', 'TypeError']
           .includes(err.name)) {
         return await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
@@ -1016,9 +1858,7 @@
 
     try {
       await video.play();
-    } catch (_) {
-      // Autoplay rejection is harmless here; the loop checks readyState.
-    }
+    } catch (_) { /* autoplay rejection is harmless */ }
 
     activeDeviceId = getActiveTrackDeviceId();
   }
@@ -1047,8 +1887,7 @@
       await attachStream(newStream);
       await refreshDeviceList();
 
-      // If the browser handed us a front/selfie camera while a rear camera
-      // exists, quietly switch to the main camera.
+      // Prefer the main (rear) camera if the browser gave us a front one.
       const currentId = getActiveTrackDeviceId();
       const best = pickMainCamera();
 
@@ -1116,9 +1955,7 @@
       const newStream = await openStreamWith({ deviceId: { exact: deviceId } });
       await attachStream(newStream);
 
-      if (!opts.silent) {
-        setStatus('Camera switched.', 'live');
-      }
+      if (!opts.silent) setStatus('Camera switched.', 'live');
     } catch (err) {
       showError('Could not switch camera. ' + explainCameraError(err));
 
@@ -1219,7 +2056,7 @@
       }
 
     } catch (_) {
-      // Ignore individual frame errors and keep scanning.
+      // ignore individual frame errors
     } finally {
       scanInProgress = false;
     }
@@ -1306,6 +2143,92 @@
   }
 
   /* =========================================================
+     GRAPH INTERACTION
+     ========================================================= */
+  function setupGraphInteraction() {
+    const canvasEl = $('graphCanvas');
+    if (!canvasEl) return;
+
+    let dragging = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    canvasEl.addEventListener('pointerdown', (e) => {
+      if (!graphState.equations.length) return;
+      dragging = true;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      try { canvasEl.setPointerCapture(e.pointerId); } catch (_) {}
+      canvasEl.style.cursor = 'grabbing';
+    });
+
+    canvasEl.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - lastX;
+      const dy = e.clientY - lastY;
+      lastX = e.clientX;
+      lastY = e.clientY;
+
+      const v = graphState.view;
+      const rect = canvasEl.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+
+      const xShift = dx / rect.width * (v.xMax - v.xMin);
+      const yShift = dy / rect.height * (v.yMax - v.yMin);
+
+      graphState.view = {
+        xMin: v.xMin - xShift,
+        xMax: v.xMax - xShift,
+        yMin: v.yMin + yShift,
+        yMax: v.yMax + yShift
+      };
+      drawGraph();
+    });
+
+    const endDrag = (e) => {
+      if (!dragging) return;
+      dragging = false;
+      canvasEl.style.cursor = 'grab';
+      try { canvasEl.releasePointerCapture(e.pointerId); } catch (_) {}
+    };
+    canvasEl.addEventListener('pointerup', endDrag);
+    canvasEl.addEventListener('pointercancel', endDrag);
+    canvasEl.addEventListener('pointerleave', () => {
+      dragging = false;
+      canvasEl.style.cursor = 'grab';
+    });
+
+    canvasEl.addEventListener('wheel', (e) => {
+      if (!graphState.equations.length) return;
+      e.preventDefault();
+
+      const rect = canvasEl.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+
+      const px = (e.clientX - rect.left) / rect.width;
+      const py = (e.clientY - rect.top) / rect.height;
+
+      const v = graphState.view;
+      const xFocus = v.xMin + px * (v.xMax - v.xMin);
+      const yFocus = v.yMax - py * (v.yMax - v.yMin);
+
+      const factor = e.deltaY < 0 ? 0.85 : 1 / 0.85;
+
+      graphState.view = {
+        xMin: xFocus - (xFocus - v.xMin) * factor,
+        xMax: xFocus + (v.xMax - xFocus) * factor,
+        yMin: yFocus - (yFocus - v.yMin) * factor,
+        yMax: yFocus + (v.yMax - yFocus) * factor
+      };
+      drawGraph();
+    }, { passive: false });
+  }
+
+  $('graphZoomIn').addEventListener('click', () => zoomGraph(0.8));
+  $('graphZoomOut').addEventListener('click', () => zoomGraph(1.25));
+  $('graphReset').addEventListener('click', resetGraph);
+
+  /* =========================================================
      EVENT WIRING
      ========================================================= */
   $('startBtn').addEventListener('click', () => startCamera());
@@ -1331,7 +2254,7 @@
   $('imageInput').addEventListener('change', (event) => {
     const file = event.target.files && event.target.files[0];
     scanImage(file);
-    event.target.value = ''; // allow re-selecting the same file
+    event.target.value = '';
   });
 
   $('decodeBtn').addEventListener('click', () => {
@@ -1342,6 +2265,17 @@
     $('manualInput').value = '';
     $('resultContent').classList.remove('visible');
     $('resultEmpty').style.display = 'grid';
+    $('contentBlock').hidden = true;
+    $('equationBlock').hidden = true;
+    $('graphBlock').hidden = true;
+    $('contentKind').hidden = true;
+    $('contentKind').className = 'kind-badge';
+    $('contentKind').textContent = '';
+    $('equationList').innerHTML = '';
+    $('graphLegend').innerHTML = '';
+    $('contentOutput').textContent = '';
+    graphState.equations = [];
+    graphState.view = defaultView();
     clearError();
     lastScanned = '';
     setStatus('Cleared.', null);
@@ -1357,7 +2291,6 @@
       try {
         await navigator.clipboard.writeText(value);
       } catch (_) {
-        // Fallback for browsers without the async clipboard API.
         const helper = document.createElement('textarea');
         helper.value = value;
         helper.style.position = 'fixed';
@@ -1391,12 +2324,23 @@
     }
   });
 
+  // Redraw the graph when the viewport size changes.
+  let resizeTimer = null;
+  window.addEventListener('resize', () => {
+    if (!graphState.equations.length) return;
+    window.clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(() => {
+      try { drawGraph(); } catch (_) {}
+    }, 120);
+  });
+
   /* =========================================================
      INIT
      ========================================================= */
   initTheme();
   updateCameraDiagnostics();
   refreshDeviceList();
+  setupGraphInteraction();
 })();
 </script>
 </body>
