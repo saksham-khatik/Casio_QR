@@ -6,7 +6,6 @@
 <meta name="color-scheme" content="dark light" />
 <title>Casio QR Decoder</title>
 <style>
-  /* ============ THEME TOKENS ============ */
   :root {
     --bg: #0a1019;
     --glow-1: rgba(84, 130, 230, .20);
@@ -28,7 +27,6 @@
     --radius: 18px;
     --radius-sm: 12px;
   }
-
   [data-theme="light"] {
     --bg: #f2f5fb;
     --glow-1: rgba(84, 130, 230, .16);
@@ -48,9 +46,7 @@
     --bad: #d3384c;
     --shadow: 0 18px 40px rgba(23, 45, 82, .10);
   }
-
   * { box-sizing: border-box; }
-
   body {
     margin: 0;
     min-height: 100vh;
@@ -64,440 +60,191 @@
     -webkit-font-smoothing: antialiased;
     transition: background-color .25s ease, color .25s ease;
   }
+  .wrap { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 26px 0 60px; }
 
-  .wrap {
-    width: min(1120px, calc(100% - 32px));
-    margin: 0 auto;
-    padding: 34px 0 60px;
-  }
-
-  /* ============ HEADER ============ */
-  .topbar {
+  /* ============ VERSION BADGE ============ */
+  .version-bar {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 26px;
+    justify-content: center;
+    margin-bottom: 20px;
   }
+  .version-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 14px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 750;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(110, 168, 255, .10);
+    border: 1px solid rgba(110, 168, 255, .28);
+    box-shadow: 0 6px 18px -10px var(--accent);
+  }
+  .version-badge .v-sep { opacity: .45; }
+  .version-badge .v-bolt { color: var(--warn); font-size: 12.5px; }
 
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 26px; }
   .brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
-
   .brand-mark {
-    display: grid;
-    place-items: center;
-    width: 46px;
-    height: 46px;
-    flex: none;
-    border-radius: 14px;
-    color: var(--accent-ink);
+    display: grid; place-items: center; width: 46px; height: 46px; flex: none;
+    border-radius: 14px; color: var(--accent-ink);
     background: linear-gradient(135deg, var(--accent), var(--accent-2));
     box-shadow: 0 10px 24px -12px var(--accent);
   }
-
-  h1 {
-    font-size: clamp(22px, 3.4vw, 30px);
-    line-height: 1.15;
-    letter-spacing: -.02em;
-    margin: 0;
-  }
-
-  .subtitle {
-    margin: 3px 0 0;
-    color: var(--muted);
-    font-size: 13.5px;
-  }
-
+  h1 { font-size: clamp(22px, 3.4vw, 30px); line-height: 1.15; letter-spacing: -.02em; margin: 0; }
+  .subtitle { margin: 3px 0 0; color: var(--muted); font-size: 13.5px; }
   .icon-btn {
-    flex: none;
-    width: 42px;
-    height: 42px;
-    display: grid;
-    place-items: center;
-    font-size: 17px;
-    padding: 0;
-    border-radius: 12px;
-    color: var(--text);
-    background: var(--panel);
-    border: 1px solid var(--line-strong);
+    flex: none; width: 42px; height: 42px; display: grid; place-items: center;
+    font-size: 17px; padding: 0; border-radius: 12px; color: var(--text);
+    background: var(--panel); border: 1px solid var(--line-strong);
   }
-
-  /* ============ LAYOUT ============ */
-  .layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 20px;
-    align-items: start;
-  }
-
-  .panel {
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    overflow: hidden;
-  }
-
-  .panel-head {
-    padding: 18px 20px;
-    border-bottom: 1px solid var(--line);
-  }
-
-  .panel-head h2 {
-    margin: 0;
-    font-size: 16px;
-    letter-spacing: -.01em;
-  }
-
-  .panel-head p {
-    margin: 3px 0 0;
-    font-size: 13px;
-    color: var(--muted);
-  }
-
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+  .panel-head { padding: 18px 20px; border-bottom: 1px solid var(--line); }
+  .panel-head h2 { margin: 0; font-size: 16px; letter-spacing: -.01em; }
+  .panel-head p { margin: 3px 0 0; font-size: 13px; color: var(--muted); }
   .panel-body { padding: 20px; }
-
-  /* ============ SCANNER ============ */
-  .scanner-frame {
-    position: relative;
-    aspect-ratio: 4 / 3;
-    border-radius: 16px;
-    border: 1px solid var(--line);
-    background: #05090f;
-    overflow: hidden;
-  }
-
-  .scanner-frame video {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    background: #000;
-  }
-
+  .scanner-frame { position: relative; aspect-ratio: 4 / 3; border-radius: 16px; border: 1px solid var(--line); background: #05090f; overflow: hidden; }
+  .scanner-frame video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #000; }
   .scanner-frame video[hidden] { display: none; }
-
-  .scan-placeholder {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    place-content: center;
-    justify-items: center;
-    gap: 6px;
-    text-align: center;
-    padding: 24px;
-    color: #8fa2bd;
-  }
-
+  .scan-placeholder { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 6px; text-align: center; padding: 24px; color: #8fa2bd; }
   .scan-placeholder strong { color: #c8d7ee; font-size: 14.5px; }
   .scan-placeholder p { margin: 0; font-size: 12.5px; }
-
-  .scan-overlay {
-    position: absolute;
-    inset: 0;
-    display: none;
-    place-items: center;
-    pointer-events: none;
-  }
-
+  .scan-overlay { position: absolute; inset: 0; display: none; place-items: center; pointer-events: none; }
   .scanner-frame.active .scan-overlay { display: grid; }
-
-  .scan-target {
-    position: relative;
-    width: min(62%, 220px);
-    aspect-ratio: 1;
-    border-radius: 18px;
-    border: 2px solid rgba(110, 168, 255, .9);
-    box-shadow: 0 0 0 9999px rgba(3, 7, 14, .45);
-    overflow: hidden;
-  }
-
-  .scan-line {
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    animation: scanline 2.4s ease-in-out infinite;
-  }
-
-  @keyframes scanline {
-    0%, 100% { top: 8%; }
-    50% { top: 90%; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .scan-line { animation: none; top: 50%; }
-  }
-
-  /* ============ CONTROLS ============ */
-  .camera-row {
-    display: flex;
-    gap: 10px;
-    margin-top: 14px;
-  }
-
+  .scan-target { position: relative; width: min(62%, 220px); aspect-ratio: 1; border-radius: 18px; border: 2px solid rgba(110, 168, 255, .9); box-shadow: 0 0 0 9999px rgba(3, 7, 14, .45); overflow: hidden; }
+  .scan-line { position: absolute; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); animation: scanline 2.4s ease-in-out infinite; }
+  @keyframes scanline { 0%, 100% { top: 8%; } 50% { top: 90%; } }
+  @media (prefers-reduced-motion: reduce) { .scan-line { animation: none; top: 50%; } }
+  .camera-row { display: flex; gap: 10px; margin-top: 14px; }
   .select {
-    flex: 1 1 auto;
-    min-width: 0;
-    padding: 11px 36px 11px 13px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--line-strong);
-    background-color: var(--panel-soft);
-    background-image:
-      linear-gradient(45deg, transparent 50%, currentColor 50%),
-      linear-gradient(135deg, currentColor 50%, transparent 50%);
+    flex: 1 1 auto; min-width: 0; padding: 11px 36px 11px 13px; border-radius: var(--radius-sm);
+    border: 1px solid var(--line-strong); background-color: var(--panel-soft);
+    background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
     background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%;
-    background-size: 5px 5px, 5px 5px;
-    background-repeat: no-repeat;
-    color: var(--text);
-    font: inherit;
-    font-size: 14px;
-    cursor: pointer;
-    appearance: none;
-    -webkit-appearance: none;
-    text-overflow: ellipsis;
+    background-size: 5px 5px, 5px 5px; background-repeat: no-repeat;
+    color: var(--text); font: inherit; font-size: 14px; cursor: pointer; appearance: none; -webkit-appearance: none; text-overflow: ellipsis;
   }
-
   .select:disabled { opacity: .55; cursor: not-allowed; }
-
-  .controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 12px;
-  }
-
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
   button, .file-label {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    border: 0;
-    border-radius: var(--radius-sm);
-    padding: 11px 16px;
-    font: inherit;
-    font-weight: 650;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color .18s ease, border-color .18s ease,
-                color .18s ease, filter .18s ease, transform .1s ease;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    border: 0; border-radius: var(--radius-sm); padding: 11px 16px;
+    font: inherit; font-weight: 650; font-size: 14px; cursor: pointer;
+    transition: background-color .18s ease, border-color .18s ease, color .18s ease, filter .18s ease, transform .1s ease;
   }
-
   button:active:not(:disabled) { transform: translateY(1px); }
   button:disabled { opacity: .45; cursor: not-allowed; }
-
-  button:focus-visible,
-  .file-label:focus-visible,
-  .select:focus-visible,
-  textarea:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-
-  .primary {
-    color: var(--accent-ink);
-    background: linear-gradient(110deg, var(--accent), var(--accent-2));
-    box-shadow: 0 10px 24px -14px var(--accent);
-  }
-
+  button:focus-visible, .file-label:focus-visible, .select:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .primary { color: var(--accent-ink); background: linear-gradient(110deg, var(--accent), var(--accent-2)); box-shadow: 0 10px 24px -14px var(--accent); }
   .primary:hover:not(:disabled) { filter: brightness(1.07); }
-
-  .secondary, .file-label {
-    color: var(--text);
-    background: var(--panel-soft);
-    border: 1px solid var(--line-strong);
-  }
-
-  .secondary:hover:not(:disabled),
-  .file-label:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-
+  .secondary, .file-label { color: var(--text); background: var(--panel-soft); border: 1px solid var(--line-strong); }
+  .secondary:hover:not(:disabled), .file-label:hover { border-color: var(--accent); color: var(--accent); }
   input[type=file] { display: none; }
-
-  /* ============ STATUS ============ */
-  .status {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    margin-top: 16px;
-    font-size: 13px;
-    color: var(--muted);
-    min-height: 20px;
-  }
-
-  .status .dot {
-    flex: none;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--muted);
-    transition: background-color .2s ease, box-shadow .2s ease;
-  }
-
+  .status { display: flex; align-items: center; gap: 9px; margin-top: 16px; font-size: 13px; color: var(--muted); min-height: 20px; }
+  .status .dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); transition: background-color .2s ease, box-shadow .2s ease; }
   .status.live .dot { background: var(--good); box-shadow: 0 0 0 4px rgba(58, 211, 156, .18); }
   .status.live { color: var(--good); }
   .status.pending .dot { background: var(--warn); box-shadow: 0 0 0 4px rgba(242, 182, 75, .18); }
   .status.pending { color: var(--warn); }
   .status.error .dot { background: var(--bad); box-shadow: 0 0 0 4px rgba(255, 127, 142, .18); }
   .status.error { color: var(--bad); }
-
-  .camera-help {
-    margin-top: 10px;
-    padding: 11px 13px;
-    border-radius: 11px;
-    background: rgba(110, 168, 255, .09);
-    color: var(--muted);
-    font-size: 12.5px;
-  }
-
+  .camera-help { margin-top: 10px; padding: 11px 13px; border-radius: 11px; background: rgba(110, 168, 255, .09); color: var(--muted); font-size: 12.5px; }
   .camera-help.good { color: var(--good); background: rgba(58, 211, 156, .10); }
   .camera-help.bad { color: var(--bad); background: rgba(255, 127, 142, .10); }
-
-  /* ============ MANUAL INPUT ============ */
-  .paste-area {
-    margin-top: 20px;
-    padding-top: 18px;
-    border-top: 1px solid var(--line);
-  }
-
-  .paste-area label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: var(--muted);
-  }
-
+  .paste-area { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line); }
+  .paste-area label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--muted); }
   textarea {
-    width: 100%;
-    min-height: 96px;
-    resize: vertical;
-    border-radius: 12px;
-    border: 1px solid var(--line-strong);
-    background: var(--field);
-    color: var(--text);
-    padding: 12px;
-    font: 12.5px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    width: 100%; min-height: 96px; resize: vertical; border-radius: 12px;
+    border: 1px solid var(--line-strong); background: var(--field); color: var(--text);
+    padding: 12px; font: 12.5px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   }
-
   textarea::placeholder { color: var(--muted); opacity: .8; }
-
-  /* ============ RESULTS ============ */
-  .result-empty {
-    min-height: 280px;
-    display: grid;
-    place-items: center;
-    text-align: center;
-    color: var(--muted);
-    font-size: 14px;
-    border: 1px dashed var(--line-strong);
-    border-radius: 14px;
-    padding: 24px;
-  }
-
+  .result-empty { min-height: 280px; display: grid; place-items: center; text-align: center; color: var(--muted); font-size: 14px; border: 1px dashed var(--line-strong); border-radius: 14px; padding: 24px; }
   .result-content { display: none; }
   .result-content.visible { display: block; }
-
-  .decoded {
-    background: rgba(58, 211, 156, .09);
-    border: 1px solid rgba(58, 211, 156, .28);
-    border-radius: 15px;
-    padding: 16px 17px;
-    margin-bottom: 18px;
+  .decoded { background: rgba(58, 211, 156, .09); border: 1px solid rgba(58, 211, 156, .28); border-radius: 15px; padding: 16px 17px; margin-bottom: 14px; }
+  .decoded-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .decoded-label-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .result-label { font-size: 11px; font-weight: 750; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+  .kind-badge {
+    display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px;
+    font-size: 10.5px; font-weight: 750; letter-spacing: .05em; text-transform: uppercase;
+    background: rgba(110, 168, 255, .14); color: var(--accent); border: 1px solid rgba(110, 168, 255, .30);
   }
-
-  .decoded-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-  }
-
-  .result-label {
-    font-size: 11px;
-    font-weight: 750;
-    letter-spacing: .07em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-
-  .decoded-text {
-    margin-top: 8px;
-    font-size: clamp(22px, 3.2vw, 30px);
-    font-weight: 750;
-    line-height: 1.25;
-    letter-spacing: -.01em;
-    color: var(--good);
-    overflow-wrap: anywhere;
-  }
-
-  .result-meta {
-    margin-top: 10px;
-    font-size: 12.5px;
-    color: var(--muted);
-  }
-
+  .kind-badge.kind-equation { background: rgba(58, 211, 156, .12); color: var(--good); border-color: rgba(58, 211, 156, .30); }
+  .kind-badge.kind-json { background: rgba(242, 182, 75, .12); color: var(--warn); border-color: rgba(242, 182, 75, .30); }
+  .kind-badge.kind-url { background: rgba(160, 140, 255, .12); color: var(--accent-2); border-color: rgba(160, 140, 255, .30); }
+  .decoded-text { margin-top: 8px; font-size: clamp(20px, 3vw, 28px); font-weight: 750; line-height: 1.3; letter-spacing: -.01em; color: var(--good); overflow-wrap: anywhere; }
+  .result-meta { margin-bottom: 16px; font-size: 12.5px; color: var(--muted); }
   .data-block { margin-top: 16px; }
-
-  .data-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 8px;
-  }
-
+  .data-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
   pre {
-    margin: 0;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-    background: var(--field);
-    color: var(--text);
-    border: 1px solid var(--line);
-    border-radius: 11px;
-    padding: 12px;
+    margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; background: var(--field); color: var(--text);
+    border: 1px solid var(--line); border-radius: 11px; padding: 12px;
     font: 12px/1.65 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    max-height: 220px;
-    overflow: auto;
+    max-height: 240px; overflow: auto;
   }
-
-  .copy-btn {
-    padding: 6px 11px;
-    font-size: 12px;
-    font-weight: 650;
-    border-radius: 9px;
-    color: var(--text);
-    background: var(--panel-soft);
-    border: 1px solid var(--line-strong);
-  }
-
+  pre a { color: var(--accent); text-decoration: underline; }
+  .copy-btn { padding: 6px 11px; font-size: 12px; font-weight: 650; border-radius: 9px; color: var(--text); background: var(--panel-soft); border: 1px solid var(--line-strong); }
   .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-  .error-box {
-    display: none;
-    margin-top: 16px;
-    padding: 12px 14px;
-    border-radius: 11px;
-    color: var(--bad);
-    background: rgba(255, 127, 142, .10);
-    border: 1px solid rgba(255, 127, 142, .25);
-    font-size: 13px;
+  .equation-list { display: flex; flex-direction: column; gap: 8px; }
+  .equation-item {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+    border-radius: 10px; background: var(--field); border: 1px solid var(--line);
+    font-size: 13px; overflow-wrap: anywhere;
   }
-
+  .equation-item .eq-swatch { width: 12px; height: 12px; border-radius: 4px; flex: none; }
+  .equation-item .eq-label { font-weight: 700; color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .equation-item code {
+    color: var(--text); font: inherit; font-size: 14px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  .equation-item code sup { font-size: .78em; vertical-align: super; line-height: 0; }
+  .graph-wrap { position: relative; border-radius: 12px; border: 1px solid var(--line); overflow: hidden; background: var(--field); }
+  #graphCanvas { display: block; width: 100%; height: auto; touch-action: none; cursor: grab; }
+  #graphCanvas:active { cursor: grabbing; }
+  .graph-actions { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+  .graph-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .legend-chip {
+    display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px;
+    border-radius: 999px; background: var(--field); border: 1px solid var(--line);
+    font-size: 12px; color: var(--muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; max-width: 100%;
+  }
+  .legend-chip .eq-swatch { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+  .legend-chip sup { font-size: .78em; vertical-align: super; line-height: 0; }
+  .error-box {
+    display: none; margin-top: 16px; padding: 12px 14px; border-radius: 11px;
+    color: var(--bad); background: rgba(255, 127, 142, .10);
+    border: 1px solid rgba(255, 127, 142, .25); font-size: 13px;
+  }
   .error-box.visible { display: block; }
-
+  .notice {
+    margin-top: 10px; padding: 9px 12px; border-radius: 10px;
+    font-size: 12px; color: var(--muted);
+    background: rgba(110, 168, 255, .08);
+    border: 1px solid rgba(110, 168, 255, .18);
+  }
   @media (max-width: 860px) {
     .layout { grid-template-columns: minmax(0, 1fr); }
-    .wrap { padding-top: 24px; }
+    .wrap { padding-top: 18px; }
   }
 </style>
 </head>
 
 <body>
 <main class="wrap">
+
+  <!-- ============ VERSION BADGE ============ -->
+  <div class="version-bar">
+    <span class="version-badge">
+      Version 2.15 <span class="v-sep">|</span> API Integrated <span class="v-bolt">⚡</span>
+    </span>
+  </div>
 
   <header class="topbar">
     <div class="brand">
@@ -513,7 +260,7 @@
       </span>
       <div class="brand-text">
         <h1>Casio QR Decoder</h1>
-        <p class="subtitle">Scan a Casio QR code and recover its original message.</p>
+        <p class="subtitle">Scan a Casio QR — equations are decoded via the ClassWizQR API and graphed automatically.</p>
       </div>
     </div>
 
@@ -522,7 +269,6 @@
 
   <div class="layout">
 
-    <!-- ================= SCANNER ================= -->
     <section class="panel">
       <div class="panel-head">
         <h2>QR Code Scanner</h2>
@@ -533,12 +279,10 @@
 
         <div class="scanner-frame" id="scannerFrame">
           <video id="video" playsinline autoplay muted hidden></video>
-
           <div class="scan-placeholder" id="placeholder">
             <strong>Camera Preview</strong>
             <p>Press “Start camera” to begin scanning.</p>
           </div>
-
           <div class="scan-overlay" aria-hidden="true">
             <div class="scan-target"><span class="scan-line"></span></div>
           </div>
@@ -554,7 +298,6 @@
         <div class="controls">
           <button class="primary" id="startBtn" type="button">Start camera</button>
           <button class="secondary" id="stopBtn" type="button" disabled>Stop</button>
-
           <label class="file-label" for="imageInput">Upload QR image</label>
           <input id="imageInput" type="file" accept="image/*">
         </div>
@@ -567,24 +310,28 @@
         <div class="camera-help" id="cameraHelp">Checking camera support…</div>
 
         <div class="paste-area">
-          <label for="manualInput">Paste a Casio URL or binary string</label>
+          <label for="manualInput">Paste a Casio URL, binary string, equation, or JSON</label>
           <textarea id="manualInput" spellcheck="false"
-            placeholder="https://… or 010011010110…"></textarea>
+            placeholder="https://wes.casio.com/ncal/index.php?q=… · 010011010110… · y = x^2 + 1 · {&quot;a&quot;:1}"></textarea>
 
           <div class="controls">
             <button class="primary" id="decodeBtn" type="button">Decode input</button>
             <button class="secondary" id="clearBtn" type="button">Clear</button>
+          </div>
+
+          <div class="notice">
+            The FX-991CW packed format is parsed by the public <code>cwqr.pages.dev</code> API.
+            If the API is unreachable, the app falls back to its built-in binary/E-field decoder.
           </div>
         </div>
 
       </div>
     </section>
 
-    <!-- ================= RESULT ================= -->
     <section class="panel">
       <div class="panel-head">
         <h2>Decoded Message</h2>
-        <p>Results are extracted automatically.</p>
+        <p>Results are extracted and previewed automatically.</p>
       </div>
 
       <div class="panel-body">
@@ -597,13 +344,46 @@
 
           <div class="decoded">
             <div class="decoded-top">
-              <span class="result-label">Decoded message</span>
+              <div class="decoded-label-group">
+                <span class="result-label">Decoded message</span>
+                <span class="kind-badge" id="contentKind" hidden></span>
+              </div>
               <button class="copy-btn" type="button" data-copy="decodedMessage">Copy</button>
             </div>
             <div class="decoded-text" id="decodedMessage"></div>
           </div>
 
           <div class="result-meta" id="decodeMeta"></div>
+
+          <div class="data-block" id="contentBlock" hidden>
+            <div class="data-top">
+              <span class="result-label">Parsed content</span>
+              <button class="copy-btn" type="button" data-copy="contentOutput">Copy</button>
+            </div>
+            <pre id="contentOutput"></pre>
+          </div>
+
+          <div class="data-block" id="equationBlock" hidden>
+            <div class="data-top">
+              <span class="result-label">Detected equations</span>
+            </div>
+            <div class="equation-list" id="equationList"></div>
+          </div>
+
+          <div class="data-block" id="graphBlock" hidden>
+            <div class="data-top">
+              <span class="result-label">Graph</span>
+              <div class="graph-actions">
+                <button class="copy-btn" type="button" id="graphZoomIn" title="Zoom in">+</button>
+                <button class="copy-btn" type="button" id="graphZoomOut" title="Zoom out">−</button>
+                <button class="copy-btn" type="button" id="graphReset" title="Reset view">Reset</button>
+              </div>
+            </div>
+            <div class="graph-wrap">
+              <canvas id="graphCanvas"></canvas>
+            </div>
+            <div class="graph-legend" id="graphLegend"></div>
+          </div>
 
           <div class="data-block">
             <div class="data-top">
@@ -648,13 +428,12 @@
   'use strict';
 
   const $ = (id) => document.getElementById(id);
-
   const video = $('video');
   const canvas = $('canvas');
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
   const SCAN_INTERVAL_MS = 200;
-  const MAX_SCAN_EDGE = 960;   // downscale frames for speed + stability
+  const MAX_SCAN_EDGE = 960;
 
   let stream = null;
   let scanTimer = null;
@@ -678,6 +457,9 @@
     btn.setAttribute('aria-label',
       theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme');
     try { localStorage.setItem(THEME_KEY, theme); } catch (_) {}
+    if (graphState.equations.length) {
+      try { drawGraph(); } catch (_) {}
+    }
   }
 
   function initTheme() {
@@ -699,27 +481,364 @@
   });
 
   /* =========================================================
-     DECODING
+     HELPERS
+     ========================================================= */
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function prettifyExpr(expr) {
+    return escapeHtml(expr)
+      .replace(/\^(-?\d+)/g, '<sup>$1</sup>')
+      .replace(/\^\(([^)]+)\)/g, '<sup>($1)</sup>')
+      .replace(/\^([a-zA-Z])/g, '<sup>$1</sup>')
+      .replace(/\*/g, '·');
+  }
+
+  /* =========================================================
+     EXPRESSION ENGINE  (safe, no eval)
+     ========================================================= */
+  const FUNC_NAMES = [
+    'arcsin', 'arccos', 'arctan', 'sinh', 'cosh', 'tanh',
+    'asin', 'acos', 'atan', 'sin', 'cos', 'tan',
+    'ln', 'log', 'sqrt', 'abs', 'exp', 'floor', 'ceil', 'round', 'sign'
+  ].sort((a, b) => b.length - a.length);
+
+  const FUNC_IMPL = {
+    sin: Math.sin, cos: Math.cos, tan: Math.tan,
+    asin: Math.asin, acos: Math.acos, atan: Math.atan,
+    arcsin: Math.asin, arccos: Math.acos, arctan: Math.atan,
+    sinh: Math.sinh, cosh: Math.cosh, tanh: Math.tanh,
+    ln: Math.log, log: Math.log10,
+    sqrt: Math.sqrt, abs: Math.abs, exp: Math.exp,
+    floor: Math.floor, ceil: Math.ceil, round: Math.round,
+    sign: Math.sign
+  };
+
+  function tokenize(src) {
+    const s = src.replace(/\s+/g, '');
+    const tokens = [];
+    let i = 0;
+
+    while (i < s.length) {
+      const c = s[i];
+
+      if (/[0-9.]/.test(c)) {
+        let j = i;
+        while (j < s.length && /[0-9.]/.test(s[j])) j++;
+        const num = parseFloat(s.slice(i, j));
+        if (!isFinite(num)) throw new Error('Invalid number');
+        tokens.push({ t: 'num', v: num });
+        i = j;
+        continue;
+      }
+
+      let fn = null;
+      for (const name of FUNC_NAMES) {
+        if (s.slice(i, i + name.length).toLowerCase() === name) { fn = name; break; }
+      }
+      if (fn) { tokens.push({ t: 'func', v: fn }); i += fn.length; continue; }
+
+      if (s.slice(i, i + 2).toLowerCase() === 'pi') { tokens.push({ t: 'num', v: Math.PI }); i += 2; continue; }
+      if (c === 'π') { tokens.push({ t: 'num', v: Math.PI }); i++; continue; }
+      if (c === 'τ' || s.slice(i, i + 3).toLowerCase() === 'tau') {
+        tokens.push({ t: 'num', v: Math.PI * 2 });
+        i += c === 'τ' ? 1 : 3; continue;
+      }
+
+      if (c === 'e' && !/[a-zA-Z]/.test(s[i + 1] || '')) {
+        tokens.push({ t: 'num', v: Math.E }); i++; continue;
+      }
+
+      if ('+-*/^(),='.includes(c)) { tokens.push({ t: c }); i++; continue; }
+      if (/[a-zA-Z]/.test(c)) { tokens.push({ t: 'var', v: c.toLowerCase() }); i++; continue; }
+
+      throw new Error('Unexpected character');
+    }
+    return tokens;
+  }
+
+  function parseTokens(tokens) {
+    let pos = 0;
+    const peek = () => tokens[pos];
+    const next = () => tokens[pos++];
+    const expect = (t) => {
+      const tok = next();
+      if (!tok || tok.t !== t) throw new Error('Expected "' + t + '"');
+      return tok;
+    };
+    const startsFactor = (tok) =>
+      tok && (tok.t === 'num' || tok.t === 'var' || tok.t === 'func' || tok.t === '(');
+
+    function parseExpr() {
+      let node = parseTerm();
+      while (peek() && (peek().t === '+' || peek().t === '-')) {
+        const op = next().t;
+        node = { op, a: node, b: parseTerm() };
+      }
+      return node;
+    }
+    function parseTerm() {
+      let node = parseUnary();
+      while (true) {
+        const tok = peek();
+        if (!tok) break;
+        if (tok.t === '*' || tok.t === '/') {
+          next();
+          node = { op: tok.t, a: node, b: parseUnary() };
+        } else if (startsFactor(tok)) {
+          node = { op: '*', a: node, b: parseUnary() };
+        } else break;
+      }
+      return node;
+    }
+    function parseUnary() {
+      const tok = peek();
+      if (tok && tok.t === '-') { next(); return { op: 'neg', a: parseUnary() }; }
+      if (tok && tok.t === '+') { next(); return parseUnary(); }
+      return parsePower();
+    }
+    function parsePower() {
+      const base = parsePrimary();
+      if (peek() && peek().t === '^') {
+        next();
+        return { op: '^', a: base, b: parseUnary() };
+      }
+      return base;
+    }
+    function parsePrimary() {
+      const tok = next();
+      if (!tok) throw new Error('Unexpected end of expression');
+      if (tok.t === 'num') return { op: 'num', v: tok.v };
+      if (tok.t === 'var') return { op: 'var', v: tok.v };
+      if (tok.t === 'func') {
+        expect('(');
+        const args = [parseExpr()];
+        while (peek() && peek().t === ',') { next(); args.push(parseExpr()); }
+        expect(')');
+        return { op: 'func', name: tok.v, args };
+      }
+      if (tok.t === '(') {
+        const node = parseExpr();
+        expect(')');
+        return node;
+      }
+      throw new Error('Unexpected token');
+    }
+
+    const ast = parseExpr();
+    if (pos !== tokens.length) throw new Error('Unexpected trailing tokens');
+    return ast;
+  }
+
+  function evaluate(node, env) {
+    switch (node.op) {
+      case 'num': return node.v;
+      case 'var': {
+        const v = env[node.v];
+        if (v === undefined) throw new Error('Unknown variable "' + node.v + '"');
+        return v;
+      }
+      case 'neg': return -evaluate(node.a, env);
+      case '+': return evaluate(node.a, env) + evaluate(node.b, env);
+      case '-': return evaluate(node.a, env) - evaluate(node.b, env);
+      case '*': return evaluate(node.a, env) * evaluate(node.b, env);
+      case '/': return evaluate(node.a, env) / evaluate(node.b, env);
+      case '^': return Math.pow(evaluate(node.a, env), evaluate(node.b, env));
+      case 'func': {
+        const fn = FUNC_IMPL[node.name];
+        if (!fn) throw new Error('Unknown function');
+        return fn.apply(null, node.args.map((a) => evaluate(a, env)));
+      }
+      default: throw new Error('Unknown operator');
+    }
+  }
+
+  function collectVars(node, set) {
+    if (!node) return;
+    if (node.op === 'var') set.add(node.v);
+    else if (node.op === 'func') node.args.forEach((a) => collectVars(a, set));
+    else if (node.op === 'neg') collectVars(node.a, set);
+    else { collectVars(node.a, set); collectVars(node.b, set); }
+  }
+
+  /* =========================================================
+     CONTENT ANALYSIS
+     ========================================================= */
+  const KIND_LABEL = {
+    equation: 'Equation', json: 'JSON', url: 'URL', text: 'Text'
+  };
+
+  function tryParseEquation(rawLine) {
+    let line = String(rawLine || '').trim();
+    if (!line) return null;
+    line = line.replace(/[.,;:]+$/, '').trim();
+    if (!line) return null;
+
+    const looksMathematical =
+      /x/i.test(line) || /=/.test(line) || /[+\-*/^]/.test(line) ||
+      FUNC_NAMES.some((f) => new RegExp('\\b' + f + '\\s*\\(', 'i').test(line));
+    if (!looksMathematical) return null;
+
+    let body = line;
+    let name = null;
+    const m = line.match(/^([A-Za-z]\d*|f\s*\(\s*x\s*\))\s*=\s*(.+)$/);
+    if (m) { name = m[1].replace(/\s+/g, ''); body = m[2].trim(); }
+    if (!body) return null;
+
+    let ast, vars = new Set();
+    try {
+      ast = parseTokens(tokenize(body));
+      collectVars(ast, vars);
+    } catch (_) { return null; }
+
+    for (const v of vars) if (v !== 'x') return null;
+
+    const lowerName = (name || '').toLowerCase();
+    if (!vars.size && (lowerName === 'x' || lowerName === 'x1')) {
+      let cv;
+      try { cv = evaluate(ast, {}); } catch (_) { return null; }
+      if (!isFinite(cv)) return null;
+      return { name: name || 'x', expr: body, ast, vars, vertical: true, constantValue: cv };
+    }
+
+    try { evaluate(ast, { x: 0 }); } catch (_) { return null; }
+    return { name: name || 'y', expr: body, ast, vars, vertical: false };
+  }
+
+  function analyzeContent(message) {
+    const analysis = { kind: 'text', equations: [], json: null, url: null };
+    const trimmed = String(message || '').trim();
+    if (!trimmed) return analysis;
+
+    if (/^https?:\/\/\S+$/i.test(trimmed)) {
+      analysis.kind = 'url'; analysis.url = trimmed; return analysis;
+    }
+    if (/^[\[{]/.test(trimmed)) {
+      try { analysis.json = JSON.parse(trimmed); analysis.kind = 'json'; return analysis; }
+      catch (_) { /* fall through */ }
+    }
+
+    const lines = trimmed.split(/[\n;]+/).map((s) => s.trim()).filter(Boolean);
+    if (lines.length > 0 && lines.length <= 8) {
+      const equations = [];
+      for (const line of lines) {
+        const eq = tryParseEquation(line);
+        if (!eq) { equations.length = 0; break; }
+        equations.push(eq);
+      }
+      if (equations.length === lines.length && equations.length > 0) {
+        analysis.kind = 'equation'; analysis.equations = equations; return analysis;
+      }
+    }
+    return analysis;
+  }
+
+  /* =========================================================
+     CLASSWIZQR API
+     ========================================================= */
+  const CWQR_API = 'https://cwqr.pages.dev/api';
+
+  function looksLikeCasioUrl(str) {
+    return /wes\.casio\.com/i.test(str) ||
+           /cwqr\.pages\.dev/i.test(str) ||
+           /(?:^|[\s+])[A-Z]-[0-9A-F]+/i.test(str);
+  }
+
+  function latexToPlain(latex) {
+    if (!latex) return '';
+    let s = String(latex);
+    s = s.replace(/^\s*\$+|\$+\s*$/g, '');
+    s = s.replace(/\\left|\\right/g, '');
+    s = s.replace(/\\[,;!]/g, ' ');
+    s = s.replace(/\\quad|\\qquad/g, ' ');
+    s = s.replace(/\\frac\{([^{}]*)\}\{([^{}]*)\}/g, '($1)/($2)');
+    s = s.replace(/\\dfrac\{([^{}]*)\}\{([^{}]*)\}/g, '($1)/($2)');
+    s = s.replace(/\\sqrt\{([^{}]*)\}/g, 'sqrt($1)');
+    s = s.replace(/\\sqrt\[([^\]]*)\]\{([^{}]*)\}/g, 'root($1,$2)');
+    s = s.replace(/\^\{([^{}]*)\}/g, '^($1)');
+    s = s.replace(/\^([0-9a-zA-Z])/g, '^$1');
+    const fnMap = {
+      '\\sin': 'sin', '\\cos': 'cos', '\\tan': 'tan',
+      '\\arcsin': 'asin', '\\arccos': 'acos', '\\arctan': 'atan',
+      '\\sinh': 'sinh', '\\cosh': 'cosh', '\\tanh': 'tanh',
+      '\\ln': 'ln', '\\log': 'log', '\\exp': 'exp',
+      '\\abs': 'abs'
+    };
+    Object.keys(fnMap).forEach((k) => {
+      s = s.replace(new RegExp(k.replace(/\\/g, '\\\\'), 'g'), fnMap[k]);
+    });
+    s = s.replace(/\\[a-zA-Z]+/g, '');
+    s = s.replace(/\{/g, '(').replace(/\}/g, ')');
+    s = s.replace(/−/g, '-').replace(/×/g, '*').replace(/÷/g, '/');
+    return s.replace(/\s+/g, ' ').trim();
+  }
+
+  async function decodeWithAPI(url) {
+    const res = await fetch(CWQR_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, lang: 'en' })
+    });
+    if (!res.ok) throw new Error('ClassWiz API returned HTTP ' + res.status);
+    const json = await res.json();
+    if (json.code !== 'success') {
+      throw new Error(json.msg || 'ClassWiz API could not parse this URL.');
+    }
+    const data = json.data || {};
+
+    const candidates = [
+      data.input && (data.input.latex || data.input.tex),
+      data.expression && (data.expression.latex || data.expression.tex),
+      data.equation && (data.equation.latex || data.equation.tex),
+      data.latex, data.tex
+    ].filter(Boolean);
+
+    let latex = candidates[0] || '';
+    if (!latex && Array.isArray(data.equations) && data.equations[0]) {
+      latex = data.equations[0].latex || data.equations[0].tex || '';
+    }
+    return { latex, plain: latexToPlain(latex), raw: data };
+  }
+
+  /* =========================================================
+     DECODING (API → legacy fallback)
      ========================================================= */
   function bytesToText(bytes) {
     return new TextDecoder('utf-8').decode(new Uint8Array(bytes));
   }
 
-  function decodeCasio(input) {
+  async function decodeCasio(input) {
     const raw = String(input || '').trim();
+    if (!raw) throw new Error('Enter a Casio URL or a binary string.');
 
-    if (!raw) {
-      throw new Error('Enter a Casio URL or a binary string.');
+    if (looksLikeCasioUrl(raw)) {
+      try {
+        const api = await decodeWithAPI(raw);
+        return {
+          binary: '', hex: '', source: raw,
+          mode: 'ClassWizQR API',
+          message: api.latex || api.plain || 'Packed Casio URL (parsed by API)',
+          remainder: 0,
+          apiData: api.raw,
+          plainEquation: api.plain
+        };
+      } catch (apiErr) {
+        if (!/[01]{8,}/.test(raw)) {
+          throw new Error('ClassWiz API could not decode this URL. ' + apiErr.message);
+        }
+      }
     }
 
     let payload = raw;
-
     try {
       if (/^https?:\/\//i.test(raw)) {
         const url = new URL(raw);
         payload = url.searchParams.get('q') || raw;
       }
-    } catch (_) { /* not a valid URL, keep raw */ }
+    } catch (_) { /* ignore */ }
 
     const match =
       payload.match(/(?:^|[\s&])E-([0-9a-f]+)(?=$|[\s&])/i) ||
@@ -727,47 +846,28 @@
 
     if (match) {
       const hex = match[1];
-
-      if (hex.length % 2 !== 0) {
-        throw new Error('Invalid hexadecimal length in the E field.');
-      }
-
+      if (hex.length % 2 !== 0) throw new Error('Invalid hexadecimal length in the E field.');
       const bytes = hex.match(/.{2}/g).map((x) => parseInt(x, 16));
       const ascii = bytesToText(bytes);
-
-      if (!/^[01]+$/.test(ascii)) {
-        throw new Error('The E field does not contain binary digits.');
-      }
-
+      if (!/^[01]+$/.test(ascii)) throw new Error('The E field does not contain binary digits.');
       return buildResult(ascii, hex, raw, 'Casio E field');
     }
 
     const binary = raw.replace(/[\s_]/g, '');
+    if (/^[01]+$/.test(binary)) return buildResult(binary, '', raw, 'Raw binary');
 
-    if (/^[01]+$/.test(binary)) {
-      return buildResult(binary, '', raw, 'Raw binary');
-    }
-
-    throw new Error('No valid Casio E field or binary data found.');
+    throw new Error('No valid Casio URL, E field, or binary data found.');
   }
 
   function buildResult(binary, hex, source, mode) {
     const count = Math.floor(binary.length / 8);
-
-    if (!count) {
-      throw new Error('Binary data is shorter than one byte.');
-    }
-
+    if (!count) throw new Error('Binary data is shorter than one byte.');
     const bytes = [];
     for (let i = 0; i < count; i++) {
       bytes.push(parseInt(binary.slice(i * 8, i * 8 + 8), 2));
     }
-
     return {
-      binary,
-      hex,
-      source,
-      mode,
+      binary, hex, source, mode,
       message: bytesToText(bytes),
       remainder: binary.length % 8
     };
@@ -778,35 +878,100 @@
      ========================================================= */
   function renderResult(result) {
     clearError();
-
     $('resultEmpty').style.display = 'none';
     $('resultContent').classList.add('visible');
 
     $('decodedMessage').textContent = result.message;
 
-    $('binaryOutput').textContent =
-      (result.binary.match(/.{1,8}/g) || []).join(' ');
+    $('binaryOutput').textContent = result.binary
+      ? (result.binary.match(/.{1,8}/g) || []).join(' ')
+      : '—';
 
-    $('hexOutput').textContent =
-      result.hex || 'Input was already binary.';
-
+    $('hexOutput').textContent = result.hex || '—';
     $('sourceOutput').textContent = result.source;
 
-    const bytes = Math.floor(result.binary.length / 8);
-    const rest = result.remainder
-      ? ` · ${result.remainder} trailing bit(s) ignored`
-      : '';
+    const metaParts = [result.mode];
+    if (result.apiData) {
+      metaParts.push('parsed by ClassWizQR');
+    } else {
+      const bytes = Math.floor(result.binary.length / 8);
+      metaParts.push(bytes + ' byte(s)');
+      if (result.remainder) metaParts.push(result.remainder + ' trailing bit(s) ignored');
+    }
+    $('decodeMeta').textContent = metaParts.join(' · ');
 
-    $('decodeMeta').textContent = `${result.mode} · ${bytes} byte(s)${rest}`;
+    if (result.apiData) {
+      $('contentOutput').textContent = JSON.stringify(result.apiData, null, 2);
+      $('contentBlock').hidden = false;
+    } else {
+      $('contentOutput').textContent = '';
+      $('contentBlock').hidden = true;
+    }
+
+    const analysisSource = result.plainEquation || result.message;
+    updateAnalysisUI(analysisSource);
 
     setStatus('Message decoded successfully.', 'live');
   }
 
-  function processContent(content) {
-    $('manualInput').value = content;
+  function updateAnalysisUI(message) {
+    const analysis = analyzeContent(message);
+    const badge = $('contentKind');
 
+    if (analysis.kind === 'text') {
+      badge.hidden = true; badge.className = 'kind-badge'; badge.textContent = '';
+    } else {
+      badge.hidden = false;
+      badge.className = 'kind-badge kind-' + analysis.kind;
+      badge.textContent = KIND_LABEL[analysis.kind];
+    }
+
+    const contentBlock = $('contentBlock');
+    const equationBlock = $('equationBlock');
+    const graphBlock = $('graphBlock');
+
+    if (analysis.kind === 'json') {
+      if (!contentBlock.hidden && $('contentOutput').textContent) {
+        // keep API JSON visible
+      } else {
+        $('contentOutput').textContent = JSON.stringify(analysis.json, null, 2);
+      }
+      contentBlock.hidden = false;
+    } else if (analysis.kind === 'url') {
+      const pre = $('contentOutput');
+      pre.innerHTML = '';
+      const a = document.createElement('a');
+      a.href = analysis.url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+      a.textContent = analysis.url;
+      pre.appendChild(a);
+      contentBlock.hidden = false;
+    } else if (!contentBlock.hidden && $('contentOutput').textContent) {
+      // keep API JSON visible
+    } else {
+      $('contentOutput').textContent = '';
+      contentBlock.hidden = true;
+    }
+
+    if (analysis.kind === 'equation') {
+      renderEquationBlock(analysis.equations);
+      equationBlock.hidden = false;
+      renderGraphBlock(analysis.equations);
+    } else {
+      equationBlock.hidden = true;
+      graphBlock.hidden = true;
+      $('equationList').innerHTML = '';
+      $('graphLegend').innerHTML = '';
+      graphState.equations = [];
+      graphState.view = defaultView();
+    }
+  }
+
+  async function processContent(content) {
+    $('manualInput').value = content;
+    setStatus('Decoding…', 'pending');
     try {
-      renderResult(decodeCasio(content));
+      const result = await decodeCasio(content);
+      renderResult(result);
       return true;
     } catch (error) {
       showError(error.message);
@@ -816,25 +981,259 @@
   }
 
   /* =========================================================
+     EQUATION + GRAPH UI
+     ========================================================= */
+  const EQ_COLORS = ['#6ea8ff', '#3ad39c', '#f2b64b', '#a08cff', '#ff7f8e', '#4dd0e1'];
+  const graphState = { equations: [], view: { xMin: -10, xMax: 10, yMin: -10, yMax: 10 } };
+  function defaultView() { return { xMin: -10, xMax: 10, yMin: -10, yMax: 10 }; }
+
+  function renderEquationBlock(equations) {
+    const list = $('equationList');
+    list.innerHTML = '';
+    equations.forEach((eq, i) => {
+      const item = document.createElement('div');
+      item.className = 'equation-item';
+
+      const swatch = document.createElement('span');
+      swatch.className = 'eq-swatch';
+      swatch.style.background = EQ_COLORS[i % EQ_COLORS.length];
+
+      const label = document.createElement('span');
+      label.className = 'eq-label';
+      label.textContent = eq.name + ' =';
+
+      const code = document.createElement('code');
+      code.innerHTML = prettifyExpr(eq.expr);
+      if (eq.vertical) code.innerHTML += ' <span style="opacity:.6">(vertical)</span>';
+
+      item.appendChild(swatch);
+      item.appendChild(label);
+      item.appendChild(code);
+      list.appendChild(item);
+    });
+  }
+
+  function autoFitY(equations, xMin, xMax) {
+    let yMin = Infinity, yMax = -Infinity;
+    const N = 200;
+    equations.forEach((eq) => {
+      if (eq.vertical) return;
+      for (let i = 0; i <= N; i++) {
+        const x = xMin + (i / N) * (xMax - xMin);
+        let y;
+        try { y = evaluate(eq.ast, { x }); } catch (_) { continue; }
+        if (!isFinite(y) || Math.abs(y) > 1e8) continue;
+        if (y < yMin) yMin = y;
+        if (y > yMax) yMax = y;
+      }
+    });
+    if (!isFinite(yMin) || !isFinite(yMax)) return { yMin: -10, yMax: 10 };
+    if (yMax - yMin < 0.1) {
+      const mid = (yMin + yMax) / 2;
+      yMin = mid - 1; yMax = mid + 1;
+    }
+    const pad = (yMax - yMin) * 0.08;
+    return { yMin: yMin - pad, yMax: yMax + pad };
+  }
+
+  function renderGraphBlock(equations) {
+    graphState.equations = equations;
+    const base = { xMin: -10, xMax: 10 };
+    const yRange = autoFitY(equations, base.xMin, base.xMax);
+    graphState.view = {
+      xMin: base.xMin, xMax: base.xMax,
+      yMin: yRange.yMin, yMax: yRange.yMax
+    };
+
+    const legend = $('graphLegend');
+    legend.innerHTML = '';
+    equations.forEach((eq, i) => {
+      const chip = document.createElement('span');
+      chip.className = 'legend-chip';
+
+      const swatch = document.createElement('span');
+      swatch.className = 'eq-swatch';
+      swatch.style.background = EQ_COLORS[i % EQ_COLORS.length];
+
+      const text = document.createElement('span');
+      text.innerHTML = escapeHtml(eq.name) + ' = ' + prettifyExpr(eq.expr);
+
+      chip.appendChild(swatch);
+      chip.appendChild(text);
+      legend.appendChild(chip);
+    });
+
+    $('graphBlock').hidden = false;
+    drawGraph();
+  }
+
+  function niceStep(range, targetTicks) {
+    const raw = range / Math.max(2, targetTicks);
+    const pow = Math.pow(10, Math.floor(Math.log10(raw)));
+    const norm = raw / pow;
+    let step;
+    if (norm < 1.5) step = 1;
+    else if (norm < 3) step = 2;
+    else if (norm < 7) step = 5;
+    else step = 10;
+    return step * pow;
+  }
+
+  function formatTick(v) {
+    if (v === 0) return '0';
+    const abs = Math.abs(v);
+    if (abs >= 1000 || abs < 0.001) return v.toExponential(0);
+    return v.toFixed(2).replace(/\.?0+$/, '');
+  }
+
+  function drawGraph() {
+    const canvasEl = $('graphCanvas');
+    if (!canvasEl || !graphState.equations.length) return;
+
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    const colors = {
+      bg: isLight ? '#ffffff' : '#0b1320',
+      grid: isLight ? 'rgba(21,45,82,.10)' : 'rgba(155,178,214,.10)',
+      axis: isLight ? 'rgba(21,45,82,.55)' : 'rgba(200,215,238,.55)',
+      text: isLight ? '#5c6f8b' : '#93a5c0'
+    };
+
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const cssW = canvasEl.clientWidth || 640;
+    const cssH = Math.max(220, Math.round(cssW * 0.62));
+
+    canvasEl.width = Math.round(cssW * dpr);
+    canvasEl.height = Math.round(cssH * dpr);
+    canvasEl.style.height = cssH + 'px';
+
+    const g = canvasEl.getContext('2d');
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const W = cssW, H = cssH, view = graphState.view;
+    const xToPx = (x) => (x - view.xMin) / (view.xMax - view.xMin) * W;
+    const yToPx = (y) => (view.yMax - y) / (view.yMax - view.yMin) * H;
+
+    g.fillStyle = colors.bg;
+    g.fillRect(0, 0, W, H);
+
+    const xStep = niceStep(view.xMax - view.xMin, 8);
+    const yStep = niceStep(view.yMax - view.yMin, 6);
+
+    g.strokeStyle = colors.grid;
+    g.lineWidth = 1;
+    g.beginPath();
+    for (let x = Math.ceil(view.xMin / xStep) * xStep; x <= view.xMax; x += xStep) {
+      const px = xToPx(x);
+      g.moveTo(px, 0); g.lineTo(px, H);
+    }
+    for (let y = Math.ceil(view.yMin / yStep) * yStep; y <= view.yMax; y += yStep) {
+      const py = yToPx(y);
+      g.moveTo(0, py); g.lineTo(W, py);
+    }
+    g.stroke();
+
+    g.strokeStyle = colors.axis;
+    g.lineWidth = 1.5;
+    g.beginPath();
+    if (view.yMin <= 0 && view.yMax >= 0) {
+      const py = yToPx(0);
+      g.moveTo(0, py); g.lineTo(W, py);
+    }
+    if (view.xMin <= 0 && view.xMax >= 0) {
+      const px = xToPx(0);
+      g.moveTo(px, 0); g.lineTo(px, H);
+    }
+    g.stroke();
+
+    g.fillStyle = colors.text;
+    g.font = '11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+
+    const xAxisY = (view.yMin <= 0 && view.yMax >= 0) ? yToPx(0) : H - 14;
+    g.textAlign = 'center'; g.textBaseline = 'top';
+    for (let x = Math.ceil(view.xMin / xStep) * xStep; x <= view.xMax; x += xStep) {
+      if (Math.abs(x) < 1e-9) continue;
+      const px = xToPx(x);
+      g.fillText(formatTick(x), px, Math.min(H - 14, xAxisY + 4));
+    }
+
+    const yAxisX = (view.xMin <= 0 && view.xMax >= 0) ? xToPx(0) : 4;
+    g.textAlign = 'right'; g.textBaseline = 'middle';
+    for (let y = Math.ceil(view.yMin / yStep) * yStep; y <= view.yMax; y += yStep) {
+      if (Math.abs(y) < 1e-9) continue;
+      const py = yToPx(y);
+      g.fillText(formatTick(y), Math.max(4, Math.min(W - 4, yAxisX - 5)), py);
+    }
+
+    const CLIP = H * 1.5;
+    graphState.equations.forEach((eq, i) => {
+      const color = EQ_COLORS[i % EQ_COLORS.length];
+      g.strokeStyle = color;
+      g.lineWidth = 2;
+      g.lineJoin = 'round';
+      g.lineCap = 'round';
+
+      if (eq.vertical) {
+        if (eq.constantValue >= view.xMin && eq.constantValue <= view.xMax) {
+          const px = xToPx(eq.constantValue);
+          g.save();
+          g.setLineDash([5, 5]);
+          g.beginPath();
+          g.moveTo(px, 0); g.lineTo(px, H);
+          g.stroke();
+          g.restore();
+        }
+        return;
+      }
+
+      g.beginPath();
+      let prevPy = null;
+      for (let px = 0; px <= W; px += 1) {
+        const x = view.xMin + (px / W) * (view.xMax - view.xMin);
+        let y;
+        try { y = evaluate(eq.ast, { x }); } catch (_) { y = NaN; }
+        if (!isFinite(y)) { prevPy = null; continue; }
+        const py = yToPx(y);
+        if (prevPy === null) g.moveTo(px, py);
+        else if (Math.abs(py - prevPy) > CLIP) g.moveTo(px, py);
+        else g.lineTo(px, py);
+        prevPy = py;
+      }
+      g.stroke();
+    });
+  }
+
+  function zoomGraph(factor) {
+    const v = graphState.view;
+    const cx = (v.xMin + v.xMax) / 2, cy = (v.yMin + v.yMax) / 2;
+    const xr = (v.xMax - v.xMin) * factor, yr = (v.yMax - v.yMin) * factor;
+    graphState.view = { xMin: cx - xr / 2, xMax: cx + xr / 2, yMin: cy - yr / 2, yMax: cy + yr / 2 };
+    drawGraph();
+  }
+
+  function resetGraph() {
+    if (!graphState.equations.length) return;
+    const yRange = autoFitY(graphState.equations, -10, 10);
+    graphState.view = { xMin: -10, xMax: 10, yMin: yRange.yMin, yMax: yRange.yMax };
+    drawGraph();
+  }
+
+  /* =========================================================
      STATUS / ERRORS
      ========================================================= */
   function setStatus(message, state) {
     $('statusText').textContent = message;
     $('scanStatus').className = 'status' + (state ? ' ' + state : '');
   }
-
   function showError(message) {
     const box = $('errorBox');
     box.textContent = message;
     box.classList.add('visible');
   }
-
   function clearError() {
     const box = $('errorBox');
     box.classList.remove('visible');
     box.textContent = '';
   }
-
   function setCameraHelp(message, kind) {
     const el = $('cameraHelp');
     el.className = 'camera-help' + (kind ? ' ' + kind : '');
@@ -842,21 +1241,18 @@
   }
 
   /* =========================================================
-     CAMERA CAPABILITY CHECKS
+     CAMERA CAPABILITY
      ========================================================= */
   function isCameraSupported() {
     return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
   }
-
   function updateCameraDiagnostics() {
     if (window.self !== window.top) {
-      setCameraHelp(
-        'Embedded preview detected. Open this HTML file directly in Chrome.', 'bad');
+      setCameraHelp('Embedded preview detected. Open this HTML file directly in Chrome.', 'bad');
       return false;
     }
     if (!window.isSecureContext) {
-      setCameraHelp(
-        'Camera access requires HTTPS, localhost, or a local file opened directly.', 'bad');
+      setCameraHelp('Camera access requires HTTPS, localhost, or a local file opened directly.', 'bad');
       return false;
     }
     if (!isCameraSupported()) {
@@ -866,7 +1262,6 @@
     setCameraHelp('Camera API available. Choose a camera and press Start camera.', 'good');
     return true;
   }
-
   function explainCameraError(err) {
     const messages = {
       NotAllowedError: 'Camera permission denied. Allow camera access in your browser settings.',
@@ -880,95 +1275,66 @@
       TypeError: 'Camera API is unavailable in this page context.',
       AbortError: 'Camera start was interrupted. Please try again.'
     };
-    return messages[err && err.name] ||
-      (err && err.message) ||
-      'Camera could not start. Check your browser settings.';
+    return messages[err && err.name] || (err && err.message) || 'Camera could not start. Check your browser settings.';
   }
 
   /* =========================================================
-     DEVICE LIST & MAIN-CAMERA SELECTION
+     DEVICE LIST
      ========================================================= */
   function cameraScore(device, index) {
     const label = (device.label || '').toLowerCase();
     let score = 0;
-
-    // Strong preference for rear / main cameras.
     if (/(back|rear|environment|world|outdoor)/.test(label)) score += 100;
-    // Strong preference against front / selfie cameras.
     if (/(front|user|face|selfie|内カメラ|前置)/.test(label)) score -= 100;
-    // Slightly prefer external / USB cameras.
     if (/(usb|external|capture)/.test(label)) score += 5;
-    // Deprioritise virtual cameras.
     if (/(virtual|obs|snap camera|manycam|droidcam|iriun|epoccam)/.test(label)) score -= 60;
-
-    // Stable tie-break: earlier entries win.
     return score - index * 0.001;
   }
-
   function pickMainCamera() {
     if (!videoDevices.length) return null;
-    let best = videoDevices[0];
-    let bestScore = -Infinity;
+    let best = videoDevices[0], bestScore = -Infinity;
     videoDevices.forEach((device, index) => {
       const score = cameraScore(device, index);
-      if (score > bestScore) {
-        bestScore = score;
-        best = device;
-      }
+      if (score > bestScore) { bestScore = score; best = device; }
     });
     return best;
   }
-
   function renderCameraSelect() {
     const select = $('cameraSelect');
     const switchBtn = $('switchBtn');
-
     select.innerHTML = '';
-
     if (!videoDevices.length) {
       const opt = document.createElement('option');
-      opt.value = '';
-      opt.textContent = 'No camera detected';
+      opt.value = ''; opt.textContent = 'No camera detected';
       select.appendChild(opt);
-      select.disabled = true;
-      switchBtn.disabled = true;
+      select.disabled = true; switchBtn.disabled = true;
       return;
     }
-
     videoDevices.forEach((device, index) => {
       const opt = document.createElement('option');
       opt.value = device.deviceId;
-      opt.textContent = device.label || `Camera ${index + 1}`;
+      opt.textContent = device.label || ('Camera ' + (index + 1));
       select.appendChild(opt);
     });
-
     select.disabled = false;
     switchBtn.disabled = videoDevices.length < 2;
-
-    if (activeDeviceId &&
-        videoDevices.some((d) => d.deviceId === activeDeviceId)) {
+    if (activeDeviceId && videoDevices.some((d) => d.deviceId === activeDeviceId)) {
       select.value = activeDeviceId;
     } else {
       select.selectedIndex = 0;
     }
   }
-
   async function refreshDeviceList() {
     if (!isCameraSupported() || !navigator.mediaDevices.enumerateDevices) {
-      videoDevices = [];
-      renderCameraSelect();
-      return videoDevices;
+      videoDevices = []; renderCameraSelect(); return videoDevices;
     }
     try {
       const devices = await navigator.mediaDevices.enumerateDevices();
       videoDevices = devices.filter((d) => d.kind === 'videoinput');
-    } catch (_) {
-      videoDevices = [];
-    }
+    } catch (_) { videoDevices = []; }
     renderCameraSelect();
     return videoDevices;
   }
-
   function getActiveTrackDeviceId() {
     if (!stream) return null;
     const track = stream.getVideoTracks && stream.getVideoTracks()[0];
@@ -981,45 +1347,30 @@
      ========================================================= */
   function stopStreamTracks() {
     if (!stream) return;
-    stream.getTracks().forEach((track) => {
-      try { track.stop(); } catch (_) {}
-    });
+    stream.getTracks().forEach((track) => { try { track.stop(); } catch (_) {} });
     stream = null;
   }
-
   async function openStreamWith(videoConstraints) {
     const base = { width: { ideal: 1280 }, height: { ideal: 720 } };
     try {
       return await navigator.mediaDevices.getUserMedia({
-        video: Object.assign({}, base, videoConstraints),
-        audio: false
+        video: Object.assign({}, base, videoConstraints), audio: false
       });
     } catch (err) {
-      // Fall back to "any camera" for constraint-only failures.
-      if (err && ['OverconstrainedError', 'ConstraintNotSatisfiedError', 'TypeError']
-          .includes(err.name)) {
+      if (err && ['OverconstrainedError', 'ConstraintNotSatisfiedError', 'TypeError'].includes(err.name)) {
         return await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
       }
       throw err;
     }
   }
-
   async function attachStream(newStream) {
     stopStreamTracks();
-
     stream = newStream;
     video.srcObject = newStream;
     video.hidden = false;
-
     $('placeholder').style.display = 'none';
     $('scannerFrame').classList.add('active');
-
-    try {
-      await video.play();
-    } catch (_) {
-      // Autoplay rejection is harmless here; the loop checks readyState.
-    }
-
+    try { await video.play(); } catch (_) {}
     activeDeviceId = getActiveTrackDeviceId();
   }
 
@@ -1028,13 +1379,11 @@
      ========================================================= */
   async function startCamera(preferredDeviceId) {
     if (cameraStarting || stream) return;
-
     clearError();
     if (!updateCameraDiagnostics()) return;
 
     cameraStarting = true;
     lastScanned = '';
-
     $('startBtn').disabled = true;
     $('startBtn').textContent = 'Requesting permission…';
     setStatus('Requesting camera permission…', 'pending');
@@ -1047,20 +1396,14 @@
       await attachStream(newStream);
       await refreshDeviceList();
 
-      // If the browser handed us a front/selfie camera while a rear camera
-      // exists, quietly switch to the main camera.
       const currentId = getActiveTrackDeviceId();
       const best = pickMainCamera();
-
       if (currentId && best && best.deviceId && best.deviceId !== currentId) {
         const curIndex = videoDevices.findIndex((d) => d.deviceId === currentId);
         const bestIndex = videoDevices.findIndex((d) => d.deviceId === best.deviceId);
         const curScore = curIndex >= 0 ? cameraScore(videoDevices[curIndex], curIndex) : -1;
         const bestScore = bestIndex >= 0 ? cameraScore(videoDevices[bestIndex], bestIndex) : -1;
-
-        if (bestScore - curScore >= 50) {
-          await switchToDevice(best.deviceId, { silent: true });
-        }
+        if (bestScore - curScore >= 50) await switchToDevice(best.deviceId, { silent: true });
       }
 
       detector = null;
@@ -1072,7 +1415,6 @@
           }
         } catch (_) { detector = null; }
       }
-
       if (!detector && typeof window.jsQR !== 'function') {
         throw new Error('QR scanning library failed to load. Check your connection.');
       }
@@ -1080,7 +1422,6 @@
       startScanLoop();
       setStatus('Camera running — point it at a QR code.', 'live');
       setCameraHelp('Camera connected. Scanning…', 'good');
-
       $('startBtn').textContent = 'Camera running';
       $('stopBtn').disabled = false;
 
@@ -1107,21 +1448,15 @@
 
     switchingCamera = true;
     const previousId = getActiveTrackDeviceId() || activeDeviceId;
-
     if (!opts.silent) setStatus('Switching camera…', 'pending');
 
     try {
       stopStreamTracks();
-
       const newStream = await openStreamWith({ deviceId: { exact: deviceId } });
       await attachStream(newStream);
-
-      if (!opts.silent) {
-        setStatus('Camera switched.', 'live');
-      }
+      if (!opts.silent) setStatus('Camera switched.', 'live');
     } catch (err) {
       showError('Could not switch camera. ' + explainCameraError(err));
-
       if (previousId) {
         try {
           const restored = await openStreamWith({ deviceId: { exact: previousId } });
@@ -1139,11 +1474,9 @@
       renderCameraSelect();
     }
   }
-
   async function cycleCamera() {
     if (!stream) { startCamera(); return; }
     if (videoDevices.length < 2) return;
-
     const index = videoDevices.findIndex((d) => d.deviceId === activeDeviceId);
     const next = videoDevices[(index + 1) % videoDevices.length];
     if (next) await switchToDevice(next.deviceId);
@@ -1156,27 +1489,17 @@
     stopScanLoop();
     scanTimer = window.setInterval(scanFrame, SCAN_INTERVAL_MS);
   }
-
   function stopScanLoop() {
-    if (scanTimer !== null) {
-      window.clearInterval(scanTimer);
-      scanTimer = null;
-    }
+    if (scanTimer !== null) { window.clearInterval(scanTimer); scanTimer = null; }
   }
-
   function grabFrame() {
-    const vw = video.videoWidth;
-    const vh = video.videoHeight;
+    const vw = video.videoWidth, vh = video.videoHeight;
     if (!vw || !vh) return null;
-
     const scale = Math.min(1, MAX_SCAN_EDGE / Math.max(vw, vh));
     const w = Math.max(1, Math.round(vw * scale));
     const h = Math.max(1, Math.round(vh * scale));
-
-    canvas.width = w;
-    canvas.height = h;
+    canvas.width = w; canvas.height = h;
     ctx.drawImage(video, 0, 0, w, h);
-
     return ctx.getImageData(0, 0, w, h);
   }
 
@@ -1185,41 +1508,32 @@
     if (video.readyState < 2 || !video.videoWidth) return;
 
     scanInProgress = true;
-
     try {
       let text = null;
-
       if (detector) {
         try {
           const codes = await detector.detect(video);
           if (codes && codes.length) text = codes[0].rawValue;
-        } catch (_) { /* fall back to jsQR */ }
+        } catch (_) {}
       }
-
       if (!text && typeof window.jsQR === 'function') {
         const image = grabFrame();
         if (image) {
-          const code = window.jsQR(
-            image.data, image.width, image.height,
-            { inversionAttempts: 'attemptBoth' }
-          );
+          const code = window.jsQR(image.data, image.width, image.height, { inversionAttempts: 'attemptBoth' });
           if (code && code.data) text = code.data;
         }
       }
-
       if (text && text !== lastScanned) {
         lastScanned = text;
         stopCamera({ keepStatus: true });
-
-        const ok = processContent(text);
+        const ok = await processContent(text);
         setStatus(
           ok ? 'QR code detected — message decoded.' : 'QR code detected, but decoding failed.',
           ok ? 'live' : 'error'
         );
       }
-
     } catch (_) {
-      // Ignore individual frame errors and keep scanning.
+      // ignore
     } finally {
       scanInProgress = false;
     }
@@ -1230,32 +1544,22 @@
      ========================================================= */
   function stopCamera(options) {
     const opts = options || {};
-
     stopScanLoop();
     stopStreamTracks();
-
     try { video.pause(); } catch (_) {}
     video.srcObject = null;
     video.hidden = true;
-
     $('scannerFrame').classList.remove('active');
     $('placeholder').style.display = 'grid';
-
     $('startBtn').disabled = false;
     $('startBtn').textContent = 'Start camera';
     $('stopBtn').disabled = true;
-
     scanInProgress = false;
     activeDeviceId = null;
-
-    if (!opts.keepStatus) {
-      setStatus('Scanner is stopped.', null);
-    }
-
+    if (!opts.keepStatus) setStatus('Scanner is stopped.', null);
     if (isCameraSupported() && window.isSecureContext && window.self === window.top) {
       setCameraHelp('Camera ready. Choose a camera and press Start camera.', 'good');
     }
-
     renderCameraSelect();
   }
 
@@ -1264,46 +1568,102 @@
      ========================================================= */
   async function scanImage(file) {
     clearError();
-
     if (!file) return;
-
     if (typeof window.jsQR !== 'function') {
       showError('QR library failed to load. Check your internet connection.');
       return;
     }
-
     setStatus('Reading image…', 'pending');
-
     try {
       const bitmap = await createImageBitmap(file);
-
       const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
       const w = Math.max(1, Math.round(bitmap.width * scale));
       const h = Math.max(1, Math.round(bitmap.height * scale));
-
-      canvas.width = w;
-      canvas.height = h;
+      canvas.width = w; canvas.height = h;
       ctx.drawImage(bitmap, 0, 0, w, h);
       bitmap.close();
 
       const image = ctx.getImageData(0, 0, w, h);
-
-      const code = window.jsQR(
-        image.data, image.width, image.height,
-        { inversionAttempts: 'attemptBoth' }
-      );
-
-      if (!code || !code.data) {
-        throw new Error('No QR code was found in this image.');
-      }
-
-      processContent(code.data);
-
+      const code = window.jsQR(image.data, image.width, image.height, { inversionAttempts: 'attemptBoth' });
+      if (!code || !code.data) throw new Error('No QR code was found in this image.');
+      await processContent(code.data);
     } catch (err) {
       showError(err.message || 'Could not read this image.');
       setStatus('Image could not be decoded.', 'error');
     }
   }
+
+  /* =========================================================
+     GRAPH INTERACTION
+     ========================================================= */
+  function setupGraphInteraction() {
+    const canvasEl = $('graphCanvas');
+    if (!canvasEl) return;
+
+    let dragging = false, lastX = 0, lastY = 0;
+
+    canvasEl.addEventListener('pointerdown', (e) => {
+      if (!graphState.equations.length) return;
+      dragging = true;
+      lastX = e.clientX; lastY = e.clientY;
+      try { canvasEl.setPointerCapture(e.pointerId); } catch (_) {}
+      canvasEl.style.cursor = 'grabbing';
+    });
+
+    canvasEl.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - lastX;
+      const dy = e.clientY - lastY;
+      lastX = e.clientX; lastY = e.clientY;
+
+      const v = graphState.view;
+      const rect = canvasEl.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const xShift = dx / rect.width * (v.xMax - v.xMin);
+      const yShift = dy / rect.height * (v.yMax - v.yMin);
+      graphState.view = {
+        xMin: v.xMin - xShift, xMax: v.xMax - xShift,
+        yMin: v.yMin + yShift, yMax: v.yMax + yShift
+      };
+      drawGraph();
+    });
+
+    const endDrag = (e) => {
+      if (!dragging) return;
+      dragging = false;
+      canvasEl.style.cursor = 'grab';
+      try { canvasEl.releasePointerCapture(e.pointerId); } catch (_) {}
+    };
+    canvasEl.addEventListener('pointerup', endDrag);
+    canvasEl.addEventListener('pointercancel', endDrag);
+    canvasEl.addEventListener('pointerleave', () => {
+      dragging = false; canvasEl.style.cursor = 'grab';
+    });
+
+    canvasEl.addEventListener('wheel', (e) => {
+      if (!graphState.equations.length) return;
+      e.preventDefault();
+      const rect = canvasEl.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const px = (e.clientX - rect.left) / rect.width;
+      const py = (e.clientY - rect.top) / rect.height;
+      const v = graphState.view;
+      const xFocus = v.xMin + px * (v.xMax - v.xMin);
+      const yFocus = v.yMax - py * (v.yMax - v.yMin);
+      const factor = e.deltaY < 0 ? 0.85 : 1 / 0.85;
+      graphState.view = {
+        xMin: xFocus - (xFocus - v.xMin) * factor,
+        xMax: xFocus + (v.xMax - xFocus) * factor,
+        yMin: yFocus - (yFocus - v.yMin) * factor,
+        yMax: yFocus + (v.yMax - yFocus) * factor
+      };
+      drawGraph();
+    }, { passive: false });
+  }
+
+  $('graphZoomIn').addEventListener('click', () => zoomGraph(0.8));
+  $('graphZoomOut').addEventListener('click', () => zoomGraph(1.25));
+  $('graphReset').addEventListener('click', resetGraph);
 
   /* =========================================================
      EVENT WIRING
@@ -1320,28 +1680,35 @@
   $('cameraSelect').addEventListener('change', async (event) => {
     const deviceId = event.target.value;
     if (!deviceId) return;
-
-    if (!stream) {
-      await startCamera(deviceId);
-    } else if (deviceId !== getActiveTrackDeviceId()) {
-      await switchToDevice(deviceId);
-    }
+    if (!stream) await startCamera(deviceId);
+    else if (deviceId !== getActiveTrackDeviceId()) await switchToDevice(deviceId);
   });
 
   $('imageInput').addEventListener('change', (event) => {
     const file = event.target.files && event.target.files[0];
     scanImage(file);
-    event.target.value = ''; // allow re-selecting the same file
+    event.target.value = '';
   });
 
-  $('decodeBtn').addEventListener('click', () => {
-    processContent($('manualInput').value);
+  $('decodeBtn').addEventListener('click', async () => {
+    await processContent($('manualInput').value);
   });
 
   $('clearBtn').addEventListener('click', () => {
     $('manualInput').value = '';
     $('resultContent').classList.remove('visible');
     $('resultEmpty').style.display = 'grid';
+    $('contentBlock').hidden = true;
+    $('equationBlock').hidden = true;
+    $('graphBlock').hidden = true;
+    $('contentKind').hidden = true;
+    $('contentKind').className = 'kind-badge';
+    $('contentKind').textContent = '';
+    $('equationList').innerHTML = '';
+    $('graphLegend').innerHTML = '';
+    $('contentOutput').textContent = '';
+    graphState.equations = [];
+    graphState.view = defaultView();
     clearError();
     lastScanned = '';
     setStatus('Cleared.', null);
@@ -1351,13 +1718,9 @@
     button.addEventListener('click', async () => {
       const target = $(button.dataset.copy);
       if (!target) return;
-
       const value = target.textContent;
-
-      try {
-        await navigator.clipboard.writeText(value);
-      } catch (_) {
-        // Fallback for browsers without the async clipboard API.
+      try { await navigator.clipboard.writeText(value); }
+      catch (_) {
         const helper = document.createElement('textarea');
         helper.value = value;
         helper.style.position = 'fixed';
@@ -1368,21 +1731,16 @@
         catch (__) { showError('Clipboard blocked. Copy the text manually.'); }
         document.body.removeChild(helper);
       }
-
       const original = button.textContent;
       button.textContent = 'Copied!';
       window.setTimeout(() => { button.textContent = original; }, 1100);
     });
   });
 
-  // Keep the camera list fresh when devices are plugged in or removed.
   if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) {
-    navigator.mediaDevices.addEventListener('devicechange', () => {
-      refreshDeviceList();
-    });
+    navigator.mediaDevices.addEventListener('devicechange', () => { refreshDeviceList(); });
   }
 
-  // Release the camera when the page is hidden or unloaded.
   window.addEventListener('pagehide', () => stopCamera({ keepStatus: true }));
   document.addEventListener('visibilitychange', () => {
     if (document.hidden && stream) {
@@ -1391,12 +1749,22 @@
     }
   });
 
+  let resizeTimer = null;
+  window.addEventListener('resize', () => {
+    if (!graphState.equations.length) return;
+    window.clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(() => {
+      try { drawGraph(); } catch (_) {}
+    }, 120);
+  });
+
   /* =========================================================
      INIT
      ========================================================= */
   initTheme();
   updateCameraDiagnostics();
   refreshDeviceList();
+  setupGraphInteraction();
 })();
 </script>
 </body>
