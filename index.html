@@ -1,289 +1,532 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Casio QR Decoder</title>
-  <style>
-    :root {
-      color-scheme: dark;
-      --bg: #0b1120;
-      --panel: rgba(21,31,50,.88);
-      --line: rgba(161,180,211,.17);
-      --text: #edf4ff;
-      --muted: #9aaac3;
-      --accent: #70a5ff;
-      --good: #43d6a0;
-      --bad: #ff7c8b;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="color-scheme" content="dark light" />
+<title>Casio QR Decoder</title>
+<style>
+  /* ============ THEME TOKENS ============ */
+  :root {
+    --bg: #0a1019;
+    --glow-1: rgba(84, 130, 230, .20);
+    --glow-2: rgba(140, 95, 220, .16);
+    --panel: #111a2a;
+    --panel-soft: #0d1523;
+    --field: #0b1320;
+    --line: rgba(155, 178, 214, .16);
+    --line-strong: rgba(155, 178, 214, .30);
+    --text: #e9f1fc;
+    --muted: #93a5c0;
+    --accent: #6ea8ff;
+    --accent-2: #a08cff;
+    --accent-ink: #061222;
+    --good: #3ad39c;
+    --warn: #f2b64b;
+    --bad: #ff7f8e;
+    --shadow: 0 18px 40px rgba(0, 0, 0, .35);
+    --radius: 18px;
+    --radius-sm: 12px;
+  }
 
-    * { box-sizing: border-box; }
+  [data-theme="light"] {
+    --bg: #f2f5fb;
+    --glow-1: rgba(84, 130, 230, .16);
+    --glow-2: rgba(140, 95, 220, .11);
+    --panel: #ffffff;
+    --panel-soft: #f7f9fe;
+    --field: #ffffff;
+    --line: rgba(21, 45, 82, .12);
+    --line-strong: rgba(21, 45, 82, .22);
+    --text: #0f1b2d;
+    --muted: #5c6f8b;
+    --accent: #2f6fed;
+    --accent-2: #6f5cff;
+    --accent-ink: #ffffff;
+    --good: #0e9b6d;
+    --warn: #b47a08;
+    --bad: #d3384c;
+    --shadow: 0 18px 40px rgba(23, 45, 82, .10);
+  }
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background:
-        radial-gradient(900px 500px at 5% -10%, rgba(69,114,207,.22), transparent 60%),
-        radial-gradient(700px 500px at 100% 10%, rgba(126,83,201,.18), transparent 58%),
-        var(--bg);
-      color: var(--text);
-      font: 15px/1.5 system-ui, sans-serif;
-    }
+  * { box-sizing: border-box; }
 
-    .wrap {
-      width: min(1120px, calc(100% - 32px));
-      margin: auto;
-      padding: 38px 0 56px;
-    }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+      radial-gradient(900px 520px at 4% -12%, var(--glow-1), transparent 62%),
+      radial-gradient(760px 520px at 102% 6%, var(--glow-2), transparent 58%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--text);
+    font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color .25s ease, color .25s ease;
+  }
 
-    header {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 28px;
-    }
+  .wrap {
+    width: min(1120px, calc(100% - 32px));
+    margin: 0 auto;
+    padding: 34px 0 60px;
+  }
 
-    h1 {
-      font-size: clamp(25px,4vw,35px);
-      margin: 0;
-    }
+  /* ============ HEADER ============ */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 26px;
+  }
 
-    .subtitle, .small-note { color: var(--muted); }
+  .brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
 
-    .layout {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-      align-items: start;
-    }
+  .brand-mark {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    flex: none;
+    border-radius: 14px;
+    color: var(--accent-ink);
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    box-shadow: 0 10px 24px -12px var(--accent);
+  }
 
-    .panel {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      overflow: hidden;
-    }
+  h1 {
+    font-size: clamp(22px, 3.4vw, 30px);
+    line-height: 1.15;
+    letter-spacing: -.02em;
+    margin: 0;
+  }
 
-    .panel-head {
-      padding: 20px;
-      border-bottom: 1px solid var(--line);
-    }
+  .subtitle {
+    margin: 3px 0 0;
+    color: var(--muted);
+    font-size: 13.5px;
+  }
 
-    .panel-head h2 { margin: 0; font-size: 17px; }
+  .icon-btn {
+    flex: none;
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    font-size: 17px;
+    padding: 0;
+    border-radius: 12px;
+    color: var(--text);
+    background: var(--panel);
+    border: 1px solid var(--line-strong);
+  }
 
-    .panel-body { padding: 20px; }
+  /* ============ LAYOUT ============ */
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+  }
 
-    .scanner-frame {
-      min-height: 260px;
-      background: #070c15;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      position: relative;
-      overflow: hidden;
-      display: grid;
-      place-items: center;
-    }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
 
-    video {
-      width: 100%;
-      max-height: 420px;
-      object-fit: cover;
-    }
+  .panel-head {
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--line);
+  }
 
-    .scan-placeholder {
-      text-align: center;
-      color: var(--muted);
-      padding: 35px;
-    }
+  .panel-head h2 {
+    margin: 0;
+    font-size: 16px;
+    letter-spacing: -.01em;
+  }
 
-    .scan-overlay {
-      display: none;
-      pointer-events: none;
-      position: absolute;
-      inset: 0;
-      place-items: center;
-    }
+  .panel-head p {
+    margin: 3px 0 0;
+    font-size: 13px;
+    color: var(--muted);
+  }
 
-    .scan-overlay::before {
-      content: "";
-      width: min(62%,230px);
-      aspect-ratio: 1;
-      border: 2px solid var(--accent);
-      border-radius: 18px;
-      box-shadow: 0 0 0 999px rgba(0,0,0,.15);
-    }
+  .panel-body { padding: 20px; }
 
-    .scanner-frame.active .scan-overlay { display: grid; }
+  /* ============ SCANNER ============ */
+  .scanner-frame {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-radius: 16px;
+    border: 1px solid var(--line);
+    background: #05090f;
+    overflow: hidden;
+  }
 
-    .controls {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 14px;
-    }
+  .scanner-frame video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: #000;
+  }
 
-    button, .file-label {
-      border: 0;
-      border-radius: 12px;
-      padding: 11px 15px;
-      font: inherit;
-      font-weight: 650;
-      cursor: pointer;
-    }
+  .scanner-frame video[hidden] { display: none; }
 
-    .primary {
-      color: #071326;
-      background: linear-gradient(110deg,#8fc0ff,#a9a0ff);
-    }
+  .scan-placeholder {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 6px;
+    text-align: center;
+    padding: 24px;
+    color: #8fa2bd;
+  }
 
-    .secondary, .file-label {
-      color: var(--text);
-      background: #25334b;
-      border: 1px solid var(--line);
-    }
+  .scan-placeholder strong { color: #c8d7ee; font-size: 14.5px; }
+  .scan-placeholder p { margin: 0; font-size: 12.5px; }
 
-    button:disabled { opacity: .45; cursor: not-allowed; }
+  .scan-overlay {
+    position: absolute;
+    inset: 0;
+    display: none;
+    place-items: center;
+    pointer-events: none;
+  }
 
-    input[type=file] { display: none; }
+  .scanner-frame.active .scan-overlay { display: grid; }
 
-    .status {
-      margin-top: 13px;
-      color: var(--muted);
-      font-size: 13px;
-    }
+  .scan-target {
+    position: relative;
+    width: min(62%, 220px);
+    aspect-ratio: 1;
+    border-radius: 18px;
+    border: 2px solid rgba(110, 168, 255, .9);
+    box-shadow: 0 0 0 9999px rgba(3, 7, 14, .45);
+    overflow: hidden;
+  }
 
-    .camera-help {
-      display: block;
-      margin-top: 10px;
-      padding: 11px;
-      border-radius: 11px;
-      background: rgba(112,165,255,.08);
-      color: #bfd4f4;
-      font-size: 12px;
-    }
+  .scan-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    animation: scanline 2.4s ease-in-out infinite;
+  }
 
-    .camera-help.bad { color: #ffc0c8; }
-    .camera-help.good { color: #b7f1d9; }
+  @keyframes scanline {
+    0%, 100% { top: 8%; }
+    50% { top: 90%; }
+  }
 
-    .paste-area {
-      margin-top: 20px;
-      padding-top: 18px;
-      border-top: 1px solid var(--line);
-    }
+  @media (prefers-reduced-motion: reduce) {
+    .scan-line { animation: none; top: 50%; }
+  }
 
-    label {
-      display: block;
-      font-size: 13px;
-      margin-bottom: 8px;
-    }
+  /* ============ CONTROLS ============ */
+  .camera-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+  }
 
-    textarea {
-      width: 100%;
-      min-height: 94px;
-      resize: vertical;
-      border-radius: 12px;
-      border: 1px solid var(--line);
-      background: #0c1525;
-      color: var(--text);
-      padding: 12px;
-      font: 12px/1.55 monospace;
-    }
+  .select {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 11px 36px 11px 13px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--line-strong);
+    background-color: var(--panel-soft);
+    background-image:
+      linear-gradient(45deg, transparent 50%, currentColor 50%),
+      linear-gradient(135deg, currentColor 50%, transparent 50%);
+    background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+    color: var(--text);
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    text-overflow: ellipsis;
+  }
 
-    .result-empty {
-      min-height: 250px;
-      display: grid;
-      place-items: center;
-      text-align: center;
-      color: var(--muted);
-    }
+  .select:disabled { opacity: .55; cursor: not-allowed; }
 
-    .result-content { display: none; }
-    .result-content.visible { display: block; }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+  }
 
-    .decoded {
-      background: rgba(67,214,160,.08);
-      border: 1px solid rgba(67,214,160,.22);
-      border-radius: 15px;
-      padding: 17px;
-      margin-bottom: 18px;
-    }
+  button, .file-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    padding: 11px 16px;
+    font: inherit;
+    font-weight: 650;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color .18s ease, border-color .18s ease,
+                color .18s ease, filter .18s ease, transform .1s ease;
+  }
 
-    .result-label {
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 750;
-      margin-bottom: 8px;
-      text-transform: uppercase;
-    }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
 
-    .decoded-text {
-      font-size: 30px;
-      font-weight: 750;
-      overflow-wrap: anywhere;
-      color: #8cf0c8;
-    }
+  button:focus-visible,
+  .file-label:focus-visible,
+  .select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
 
-    .data-block { margin-top: 16px; }
+  .primary {
+    color: var(--accent-ink);
+    background: linear-gradient(110deg, var(--accent), var(--accent-2));
+    box-shadow: 0 10px 24px -14px var(--accent);
+  }
 
-    .data-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+  .primary:hover:not(:disabled) { filter: brightness(1.07); }
 
-    pre {
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-      background: #0b1423;
-      color: #c8d7ee;
-      border: 1px solid var(--line);
-      border-radius: 11px;
-      padding: 12px;
-      font: 12px/1.6 monospace;
-    }
+  .secondary, .file-label {
+    color: var(--text);
+    background: var(--panel-soft);
+    border: 1px solid var(--line-strong);
+  }
 
-    .copy-btn {
-      padding: 6px 9px;
-      background: #263650;
-      color: white;
-    }
+  .secondary:hover:not(:disabled),
+  .file-label:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
 
-    .error-box {
-      display: none;
-      margin-top: 14px;
-      color: #ffc0c8;
-      background: rgba(255,124,139,.08);
-      padding: 12px;
-      border-radius: 11px;
-    }
+  input[type=file] { display: none; }
 
-    .error-box.visible { display: block; }
+  /* ============ STATUS ============ */
+  .status {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--muted);
+    min-height: 20px;
+  }
 
-    @media(max-width:820px) {
-      .layout { grid-template-columns: 1fr; }
-    }
-  </style>
+  .status .dot {
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--muted);
+    transition: background-color .2s ease, box-shadow .2s ease;
+  }
+
+  .status.live .dot { background: var(--good); box-shadow: 0 0 0 4px rgba(58, 211, 156, .18); }
+  .status.live { color: var(--good); }
+  .status.pending .dot { background: var(--warn); box-shadow: 0 0 0 4px rgba(242, 182, 75, .18); }
+  .status.pending { color: var(--warn); }
+  .status.error .dot { background: var(--bad); box-shadow: 0 0 0 4px rgba(255, 127, 142, .18); }
+  .status.error { color: var(--bad); }
+
+  .camera-help {
+    margin-top: 10px;
+    padding: 11px 13px;
+    border-radius: 11px;
+    background: rgba(110, 168, 255, .09);
+    color: var(--muted);
+    font-size: 12.5px;
+  }
+
+  .camera-help.good { color: var(--good); background: rgba(58, 211, 156, .10); }
+  .camera-help.bad { color: var(--bad); background: rgba(255, 127, 142, .10); }
+
+  /* ============ MANUAL INPUT ============ */
+  .paste-area {
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+  }
+
+  .paste-area label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--muted);
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 96px;
+    resize: vertical;
+    border-radius: 12px;
+    border: 1px solid var(--line-strong);
+    background: var(--field);
+    color: var(--text);
+    padding: 12px;
+    font: 12.5px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  textarea::placeholder { color: var(--muted); opacity: .8; }
+
+  /* ============ RESULTS ============ */
+  .result-empty {
+    min-height: 280px;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+    border: 1px dashed var(--line-strong);
+    border-radius: 14px;
+    padding: 24px;
+  }
+
+  .result-content { display: none; }
+  .result-content.visible { display: block; }
+
+  .decoded {
+    background: rgba(58, 211, 156, .09);
+    border: 1px solid rgba(58, 211, 156, .28);
+    border-radius: 15px;
+    padding: 16px 17px;
+    margin-bottom: 18px;
+  }
+
+  .decoded-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .result-label {
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .decoded-text {
+    margin-top: 8px;
+    font-size: clamp(22px, 3.2vw, 30px);
+    font-weight: 750;
+    line-height: 1.25;
+    letter-spacing: -.01em;
+    color: var(--good);
+    overflow-wrap: anywhere;
+  }
+
+  .result-meta {
+    margin-top: 10px;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+
+  .data-block { margin-top: 16px; }
+
+  .data-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  pre {
+    margin: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    background: var(--field);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 12px;
+    font: 12px/1.65 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    max-height: 220px;
+    overflow: auto;
+  }
+
+  .copy-btn {
+    padding: 6px 11px;
+    font-size: 12px;
+    font-weight: 650;
+    border-radius: 9px;
+    color: var(--text);
+    background: var(--panel-soft);
+    border: 1px solid var(--line-strong);
+  }
+
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .error-box {
+    display: none;
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-radius: 11px;
+    color: var(--bad);
+    background: rgba(255, 127, 142, .10);
+    border: 1px solid rgba(255, 127, 142, .25);
+    font-size: 13px;
+  }
+
+  .error-box.visible { display: block; }
+
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: minmax(0, 1fr); }
+    .wrap { padding-top: 24px; }
+  }
+</style>
 </head>
 
 <body>
 <main class="wrap">
 
-  <header>
-    <div>
-      <h1>Casio QR Decoder</h1>
-      <p class="subtitle">
-        Scan a Casio QR code and recover its original message.
-      </p>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none"
+             stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1.6"/>
+          <rect x="14" y="3" width="7" height="7" rx="1.6"/>
+          <rect x="3" y="14" width="7" height="7" rx="1.6"/>
+          <path d="M14 14h3v3h-3zM20.5 14v.01M14 20.5v.01M20.5 20.5v.01"/>
+        </svg>
+      </span>
+      <div class="brand-text">
+        <h1>Casio QR Decoder</h1>
+        <p class="subtitle">Scan a Casio QR code and recover its original message.</p>
+      </div>
     </div>
+
+    <button class="icon-btn" id="themeBtn" type="button" aria-label="Toggle theme">🌙</button>
   </header>
 
   <div class="layout">
 
+    <!-- ================= SCANNER ================= -->
     <section class="panel">
       <div class="panel-head">
         <h2>QR Code Scanner</h2>
-        <p>Camera, image upload or manual input.</p>
+        <p>Camera, image upload, or manual input.</p>
       </div>
 
       <div class="panel-body">
@@ -293,52 +536,55 @@
 
           <div class="scan-placeholder" id="placeholder">
             <strong>Camera Preview</strong>
-            <p>Start the scanner to scan a QR code.</p>
+            <p>Press “Start camera” to begin scanning.</p>
           </div>
 
-          <div class="scan-overlay"></div>
+          <div class="scan-overlay" aria-hidden="true">
+            <div class="scan-target"><span class="scan-line"></span></div>
+          </div>
+        </div>
+
+        <div class="camera-row">
+          <select class="select" id="cameraSelect" aria-label="Select camera" disabled>
+            <option value="">No camera detected</option>
+          </select>
+          <button class="secondary" id="switchBtn" type="button" disabled>Switch</button>
         </div>
 
         <div class="controls">
-          <button class="primary" id="startBtn">Start camera</button>
-          <button class="secondary" id="stopBtn" disabled>Stop</button>
+          <button class="primary" id="startBtn" type="button">Start camera</button>
+          <button class="secondary" id="stopBtn" type="button" disabled>Stop</button>
 
-          <label class="file-label" for="imageInput">
-            Upload QR image
-          </label>
-
+          <label class="file-label" for="imageInput">Upload QR image</label>
           <input id="imageInput" type="file" accept="image/*">
         </div>
 
-        <div class="status" id="scanStatus">
-          Scanner is stopped.
+        <div class="status" id="scanStatus" role="status" aria-live="polite">
+          <span class="dot" aria-hidden="true"></span>
+          <span id="statusText">Scanner is stopped.</span>
         </div>
 
-        <div class="camera-help" id="cameraHelp">
-          Checking camera support...
-        </div>
+        <div class="camera-help" id="cameraHelp">Checking camera support…</div>
 
         <div class="paste-area">
-          <label for="manualInput">
-            Paste Casio URL or binary string
-          </label>
-
-          <textarea id="manualInput"
-            placeholder="Paste your Casio URL here"></textarea>
+          <label for="manualInput">Paste a Casio URL or binary string</label>
+          <textarea id="manualInput" spellcheck="false"
+            placeholder="https://… or 010011010110…"></textarea>
 
           <div class="controls">
-            <button class="primary" id="decodeBtn">Decode input</button>
-            <button class="secondary" id="clearBtn">Clear</button>
+            <button class="primary" id="decodeBtn" type="button">Decode input</button>
+            <button class="secondary" id="clearBtn" type="button">Clear</button>
           </div>
         </div>
 
       </div>
     </section>
 
+    <!-- ================= RESULT ================= -->
     <section class="panel">
       <div class="panel-head">
         <h2>Decoded Message</h2>
-        <p>Automatically extracted results.</p>
+        <p>Results are extracted automatically.</p>
       </div>
 
       <div class="panel-body">
@@ -347,40 +593,45 @@
           Nothing decoded yet.
         </div>
 
-        <div class="result-content" id="resultContent">
+        <div class="result-content" id="resultContent" aria-live="polite">
 
           <div class="decoded">
-            <div class="result-label">Decoded Message</div>
+            <div class="decoded-top">
+              <span class="result-label">Decoded message</span>
+              <button class="copy-btn" type="button" data-copy="decodedMessage">Copy</button>
+            </div>
             <div class="decoded-text" id="decodedMessage"></div>
           </div>
 
+          <div class="result-meta" id="decodeMeta"></div>
+
           <div class="data-block">
             <div class="data-top">
-              <div class="result-label">Original Binary</div>
-              <button class="copy-btn" data-copy="binaryOutput">Copy</button>
+              <span class="result-label">Original binary</span>
+              <button class="copy-btn" type="button" data-copy="binaryOutput">Copy</button>
             </div>
             <pre id="binaryOutput"></pre>
           </div>
 
           <div class="data-block">
             <div class="data-top">
-              <div class="result-label">Hexadecimal</div>
-              <button class="copy-btn" data-copy="hexOutput">Copy</button>
+              <span class="result-label">Hexadecimal</span>
+              <button class="copy-btn" type="button" data-copy="hexOutput">Copy</button>
             </div>
             <pre id="hexOutput"></pre>
           </div>
 
           <div class="data-block">
             <div class="data-top">
-              <div class="result-label">Scanned Content</div>
-              <button class="copy-btn" data-copy="sourceOutput">Copy</button>
+              <span class="result-label">Scanned content</span>
+              <button class="copy-btn" type="button" data-copy="sourceOutput">Copy</button>
             </div>
             <pre id="sourceOutput"></pre>
           </div>
 
         </div>
 
-        <div class="error-box" id="errorBox"></div>
+        <div class="error-box" id="errorBox" role="alert"></div>
 
       </div>
     </section>
@@ -393,488 +644,760 @@
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 
 <script>
-const $ = id => document.getElementById(id);
+(() => {
+  'use strict';
 
-const video = $('video');
-const canvas = $('canvas');
-const ctx = canvas.getContext('2d', {
-  willReadFrequently: true
-});
+  const $ = (id) => document.getElementById(id);
 
-let stream = null;
-let scanLoop = null;
-let lastScanned = '';
-let detector = null;
-let scanInProgress = false;
-let cameraRequestInProgress = false;
+  const video = $('video');
+  const canvas = $('canvas');
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
-// -------------------------------
-// DECODING FUNCTIONS
-// -------------------------------
+  const SCAN_INTERVAL_MS = 200;
+  const MAX_SCAN_EDGE = 960;   // downscale frames for speed + stability
 
-function bytesToText(bytes) {
-  return new TextDecoder('utf-8').decode(
-    new Uint8Array(bytes)
-  );
-}
+  let stream = null;
+  let scanTimer = null;
+  let scanInProgress = false;
+  let cameraStarting = false;
+  let switchingCamera = false;
+  let detector = null;
+  let lastScanned = '';
+  let videoDevices = [];
+  let activeDeviceId = null;
 
-function decodeCasio(input) {
-  const raw = String(input || '').trim();
+  /* =========================================================
+     THEME
+     ========================================================= */
+  const THEME_KEY = 'casio-qr-theme';
 
-  if (!raw) {
-    throw new Error('Enter a Casio URL or binary string.');
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    const btn = $('themeBtn');
+    btn.textContent = theme === 'light' ? '☀️' : '🌙';
+    btn.setAttribute('aria-label',
+      theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme');
+    try { localStorage.setItem(THEME_KEY, theme); } catch (_) {}
   }
 
-  let payload = raw;
-
-  try {
-    if (/^https?:\/\//i.test(raw)) {
-      const url = new URL(raw);
-      payload = url.searchParams.get('q') || raw;
+  function initTheme() {
+    let saved = null;
+    try { saved = localStorage.getItem(THEME_KEY); } catch (_) {}
+    if (saved !== 'light' && saved !== 'dark') {
+      saved = window.matchMedia &&
+              window.matchMedia('(prefers-color-scheme: light)').matches
+        ? 'light' : 'dark';
     }
-  } catch (_) {}
+    applyTheme(saved);
+  }
 
-  const match =
-    payload.match(/(?:^|[\s&])E-([0-9a-f]+)(?=$|[\s&])/i) ||
-    raw.match(/[?&]E-([0-9a-f]+)/i);
+  $('themeBtn').addEventListener('click', () => {
+    applyTheme(
+      document.documentElement.getAttribute('data-theme') === 'light'
+        ? 'dark' : 'light'
+    );
+  });
 
-  if (match) {
-    const hex = match[1];
+  /* =========================================================
+     DECODING
+     ========================================================= */
+  function bytesToText(bytes) {
+    return new TextDecoder('utf-8').decode(new Uint8Array(bytes));
+  }
 
-    if (hex.length % 2 !== 0) {
-      throw new Error('Invalid hexadecimal length.');
+  function decodeCasio(input) {
+    const raw = String(input || '').trim();
+
+    if (!raw) {
+      throw new Error('Enter a Casio URL or a binary string.');
     }
 
-    const ascii = bytesToText(
-      hex.match(/.{2}/g).map(x => parseInt(x,16))
-    );
+    let payload = raw;
 
-    if (!/^[01]+$/.test(ascii)) {
-      throw new Error('E field does not contain binary digits.');
+    try {
+      if (/^https?:\/\//i.test(raw)) {
+        const url = new URL(raw);
+        payload = url.searchParams.get('q') || raw;
+      }
+    } catch (_) { /* not a valid URL, keep raw */ }
+
+    const match =
+      payload.match(/(?:^|[\s&])E-([0-9a-f]+)(?=$|[\s&])/i) ||
+      raw.match(/[?&]E-([0-9a-f]+)/i);
+
+    if (match) {
+      const hex = match[1];
+
+      if (hex.length % 2 !== 0) {
+        throw new Error('Invalid hexadecimal length in the E field.');
+      }
+
+      const bytes = hex.match(/.{2}/g).map((x) => parseInt(x, 16));
+      const ascii = bytesToText(bytes);
+
+      if (!/^[01]+$/.test(ascii)) {
+        throw new Error('The E field does not contain binary digits.');
+      }
+
+      return buildResult(ascii, hex, raw, 'Casio E field');
     }
 
-    return buildResult(ascii, hex, raw, 'Casio E field');
+    const binary = raw.replace(/[\s_]/g, '');
+
+    if (/^[01]+$/.test(binary)) {
+      return buildResult(binary, '', raw, 'Raw binary');
+    }
+
+    throw new Error('No valid Casio E field or binary data found.');
   }
 
-  const binary = raw.replace(/[\s_]/g,'');
+  function buildResult(binary, hex, source, mode) {
+    const count = Math.floor(binary.length / 8);
 
-  if (/^[01]+$/.test(binary)) {
-    return buildResult(binary, '', raw, 'Raw binary');
+    if (!count) {
+      throw new Error('Binary data is shorter than one byte.');
+    }
+
+    const bytes = [];
+    for (let i = 0; i < count; i++) {
+      bytes.push(parseInt(binary.slice(i * 8, i * 8 + 8), 2));
+    }
+
+    return {
+      binary,
+      hex,
+      source,
+      mode,
+      message: bytesToText(bytes),
+      remainder: binary.length % 8
+    };
   }
 
-  throw new Error('No valid Casio E field or binary data found.');
-}
+  /* =========================================================
+     RESULT RENDERING
+     ========================================================= */
+  function renderResult(result) {
+    clearError();
 
-function buildResult(binary, hex, source, mode) {
-  const count = Math.floor(binary.length / 8);
+    $('resultEmpty').style.display = 'none';
+    $('resultContent').classList.add('visible');
 
-  if (!count) {
-    throw new Error('Binary data is shorter than one byte.');
+    $('decodedMessage').textContent = result.message;
+
+    $('binaryOutput').textContent =
+      (result.binary.match(/.{1,8}/g) || []).join(' ');
+
+    $('hexOutput').textContent =
+      result.hex || 'Input was already binary.';
+
+    $('sourceOutput').textContent = result.source;
+
+    const bytes = Math.floor(result.binary.length / 8);
+    const rest = result.remainder
+      ? ` · ${result.remainder} trailing bit(s) ignored`
+      : '';
+
+    $('decodeMeta').textContent = `${result.mode} · ${bytes} byte(s)${rest}`;
+
+    setStatus('Message decoded successfully.', 'live');
   }
 
-  const bytes = [];
+  function processContent(content) {
+    $('manualInput').value = content;
 
-  for (let i = 0; i < count; i++) {
-    bytes.push(parseInt(
-      binary.slice(i * 8, i * 8 + 8), 2
-    ));
+    try {
+      renderResult(decodeCasio(content));
+      return true;
+    } catch (error) {
+      showError(error.message);
+      setStatus('Could not decode the content.', 'error');
+      return false;
+    }
   }
 
-  return {
-    binary,
-    hex,
-    source,
-    mode,
-    message: bytesToText(bytes),
-    remainder: binary.length % 8
-  };
-}
-
-// -------------------------------
-// RESULT DISPLAY
-// -------------------------------
-
-function renderResult(result) {
-  clearError();
-
-  $('resultEmpty').style.display = 'none';
-  $('resultContent').classList.add('visible');
-
-  $('decodedMessage').textContent = result.message;
-
-  $('binaryOutput').textContent =
-    result.binary.match(/.{1,8}/g).join(' ');
-
-  $('hexOutput').textContent =
-    result.hex || 'Input was already binary.';
-
-  $('sourceOutput').textContent = result.source;
-
-  $('decodeMeta').textContent =
-    `Decoded ${Math.floor(result.binary.length / 8)} bytes.`;
-
-  setStatus('Message decoded successfully.');
-}
-
-function processContent(content) {
-  $('manualInput').value = content;
-
-  try {
-    renderResult(decodeCasio(content));
-  } catch (error) {
-    showError(error.message);
-  }
-}
-
-// -------------------------------
-// STATUS AND ERRORS
-// -------------------------------
-
-function setStatus(message) {
-  $('scanStatus').textContent = message;
-}
-
-function showError(message) {
-  const box = $('errorBox');
-  box.textContent = message;
-  box.classList.add('visible');
-}
-
-function clearError() {
-  $('errorBox').classList.remove('visible');
-  $('errorBox').textContent = '';
-}
-
-function setCameraHelp(message, kind = '') {
-  const el = $('cameraHelp');
-  el.className = 'camera-help' + (kind ? ' ' + kind : '');
-  el.textContent = message;
-}
-
-function updateCameraDiagnostics() {
-  if (window.self !== window.top) {
-    setCameraHelp(
-      'Embedded preview detected. Open the downloaded HTML directly in Chrome.',
-      'bad'
-    );
-  } else if (!window.isSecureContext) {
-    setCameraHelp(
-      'Camera access requires HTTPS, localhost or a supported local file.',
-      'bad'
-    );
-  } else if (
-    !navigator.mediaDevices ||
-    !navigator.mediaDevices.getUserMedia
-  ) {
-    setCameraHelp(
-      'Camera API is unavailable. Check Chrome settings.',
-      'bad'
-    );
-  } else {
-    setCameraHelp(
-      'Camera API available. Click Start camera.',
-      'good'
-    );
-  }
-}
-
-// -------------------------------
-// CAMERA ERROR HANDLING
-// -------------------------------
-
-function explainCameraError(err) {
-  const messages = {
-    NotAllowedError:
-      'Camera permission denied. Allow camera access in Chrome site settings.',
-    NotFoundError:
-      'No camera found. Connect a webcam.',
-    NotReadableError:
-      'Camera is already being used by another application.',
-    OverconstrainedError:
-      'The requested camera settings are not supported.',
-    SecurityError:
-      'Browser security blocked camera access.',
-    TypeError:
-      'Camera API is unavailable in this page context.'
-  };
-
-  return messages[err.name] ||
-    'Camera could not start. Check browser settings.';
-}
-
-// -------------------------------
-// START CAMERA
-// -------------------------------
-
-async function startCamera() {
-  if (cameraRequestInProgress || stream) return;
-
-  clearError();
-  updateCameraDiagnostics();
-
-  if (window.self !== window.top) {
-    showError(
-      'Open the downloaded HTML directly in Chrome, not inside a preview.'
-    );
-    return;
+  /* =========================================================
+     STATUS / ERRORS
+     ========================================================= */
+  function setStatus(message, state) {
+    $('statusText').textContent = message;
+    $('scanStatus').className = 'status' + (state ? ' ' + state : '');
   }
 
-  if (
-    !window.isSecureContext ||
-    !navigator.mediaDevices ||
-    !navigator.mediaDevices.getUserMedia
-  ) {
-    showError(
-      'Camera API is unavailable. Open using HTTPS, localhost or a supported local file.'
-    );
-    return;
+  function showError(message) {
+    const box = $('errorBox');
+    box.textContent = message;
+    box.classList.add('visible');
   }
 
-  cameraRequestInProgress = true;
+  function clearError() {
+    const box = $('errorBox');
+    box.classList.remove('visible');
+    box.textContent = '';
+  }
 
-  $('startBtn').disabled = true;
-  $('startBtn').textContent = 'Requesting permission...';
+  function setCameraHelp(message, kind) {
+    const el = $('cameraHelp');
+    el.className = 'camera-help' + (kind ? ' ' + kind : '');
+    el.textContent = message;
+  }
 
-  setStatus('Requesting camera permission...');
+  /* =========================================================
+     CAMERA CAPABILITY CHECKS
+     ========================================================= */
+  function isCameraSupported() {
+    return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+  }
 
-  try {
-    // Request camera only after user clicks the button.
-    stream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: false
+  function updateCameraDiagnostics() {
+    if (window.self !== window.top) {
+      setCameraHelp(
+        'Embedded preview detected. Open this HTML file directly in Chrome.', 'bad');
+      return false;
+    }
+    if (!window.isSecureContext) {
+      setCameraHelp(
+        'Camera access requires HTTPS, localhost, or a local file opened directly.', 'bad');
+      return false;
+    }
+    if (!isCameraSupported()) {
+      setCameraHelp('Camera API is unavailable in this browser.', 'bad');
+      return false;
+    }
+    setCameraHelp('Camera API available. Choose a camera and press Start camera.', 'good');
+    return true;
+  }
+
+  function explainCameraError(err) {
+    const messages = {
+      NotAllowedError: 'Camera permission denied. Allow camera access in your browser settings.',
+      PermissionDeniedError: 'Camera permission denied. Allow camera access in your browser settings.',
+      NotFoundError: 'No camera found. Connect a webcam or use image upload.',
+      DevicesNotFoundError: 'No camera found. Connect a webcam or use image upload.',
+      NotReadableError: 'The camera is already in use by another application.',
+      TrackStartError: 'The camera is already in use by another application.',
+      OverconstrainedError: 'The requested camera settings are not supported.',
+      SecurityError: 'Browser security blocked camera access.',
+      TypeError: 'Camera API is unavailable in this page context.',
+      AbortError: 'Camera start was interrupted. Please try again.'
+    };
+    return messages[err && err.name] ||
+      (err && err.message) ||
+      'Camera could not start. Check your browser settings.';
+  }
+
+  /* =========================================================
+     DEVICE LIST & MAIN-CAMERA SELECTION
+     ========================================================= */
+  function cameraScore(device, index) {
+    const label = (device.label || '').toLowerCase();
+    let score = 0;
+
+    // Strong preference for rear / main cameras.
+    if (/(back|rear|environment|world|outdoor)/.test(label)) score += 100;
+    // Strong preference against front / selfie cameras.
+    if (/(front|user|face|selfie|内カメラ|前置)/.test(label)) score -= 100;
+    // Slightly prefer external / USB cameras.
+    if (/(usb|external|capture)/.test(label)) score += 5;
+    // Deprioritise virtual cameras.
+    if (/(virtual|obs|snap camera|manycam|droidcam|iriun|epoccam)/.test(label)) score -= 60;
+
+    // Stable tie-break: earlier entries win.
+    return score - index * 0.001;
+  }
+
+  function pickMainCamera() {
+    if (!videoDevices.length) return null;
+    let best = videoDevices[0];
+    let bestScore = -Infinity;
+    videoDevices.forEach((device, index) => {
+      const score = cameraScore(device, index);
+      if (score > bestScore) {
+        bestScore = score;
+        best = device;
+      }
+    });
+    return best;
+  }
+
+  function renderCameraSelect() {
+    const select = $('cameraSelect');
+    const switchBtn = $('switchBtn');
+
+    select.innerHTML = '';
+
+    if (!videoDevices.length) {
+      const opt = document.createElement('option');
+      opt.value = '';
+      opt.textContent = 'No camera detected';
+      select.appendChild(opt);
+      select.disabled = true;
+      switchBtn.disabled = true;
+      return;
+    }
+
+    videoDevices.forEach((device, index) => {
+      const opt = document.createElement('option');
+      opt.value = device.deviceId;
+      opt.textContent = device.label || `Camera ${index + 1}`;
+      select.appendChild(opt);
     });
 
-    video.srcObject = stream;
+    select.disabled = false;
+    switchBtn.disabled = videoDevices.length < 2;
+
+    if (activeDeviceId &&
+        videoDevices.some((d) => d.deviceId === activeDeviceId)) {
+      select.value = activeDeviceId;
+    } else {
+      select.selectedIndex = 0;
+    }
+  }
+
+  async function refreshDeviceList() {
+    if (!isCameraSupported() || !navigator.mediaDevices.enumerateDevices) {
+      videoDevices = [];
+      renderCameraSelect();
+      return videoDevices;
+    }
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      videoDevices = devices.filter((d) => d.kind === 'videoinput');
+    } catch (_) {
+      videoDevices = [];
+    }
+    renderCameraSelect();
+    return videoDevices;
+  }
+
+  function getActiveTrackDeviceId() {
+    if (!stream) return null;
+    const track = stream.getVideoTracks && stream.getVideoTracks()[0];
+    if (!track || !track.getSettings) return null;
+    return track.getSettings().deviceId || null;
+  }
+
+  /* =========================================================
+     STREAM HANDLING
+     ========================================================= */
+  function stopStreamTracks() {
+    if (!stream) return;
+    stream.getTracks().forEach((track) => {
+      try { track.stop(); } catch (_) {}
+    });
+    stream = null;
+  }
+
+  async function openStreamWith(videoConstraints) {
+    const base = { width: { ideal: 1280 }, height: { ideal: 720 } };
+    try {
+      return await navigator.mediaDevices.getUserMedia({
+        video: Object.assign({}, base, videoConstraints),
+        audio: false
+      });
+    } catch (err) {
+      // Fall back to "any camera" for constraint-only failures.
+      if (err && ['OverconstrainedError', 'ConstraintNotSatisfiedError', 'TypeError']
+          .includes(err.name)) {
+        return await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+      }
+      throw err;
+    }
+  }
+
+  async function attachStream(newStream) {
+    stopStreamTracks();
+
+    stream = newStream;
+    video.srcObject = newStream;
     video.hidden = false;
 
     $('placeholder').style.display = 'none';
     $('scannerFrame').classList.add('active');
 
-    await video.play();
-
-    $('stopBtn').disabled = false;
-    $('startBtn').textContent = 'Camera running';
-
-    detector = null;
-
-    if ('BarcodeDetector' in window) {
-      try {
-        detector = new BarcodeDetector({
-          formats: ['qr_code']
-        });
-      } catch (_) {}
+    try {
+      await video.play();
+    } catch (_) {
+      // Autoplay rejection is harmless here; the loop checks readyState.
     }
 
-    if (!detector && typeof window.jsQR !== 'function') {
-      throw new Error('QR scanning library failed to load.');
-    }
-
-    setStatus('Camera running. Point at a QR code.');
-    setCameraHelp('Camera connected. Scan your QR code.', 'good');
-
-    scanLoop = setInterval(scanFrame, 200);
-
-  } catch (err) {
-    showError(explainCameraError(err) + ' ' + err.message);
-    stopCamera();
-  } finally {
-    cameraRequestInProgress = false;
-
-    if (!stream) {
-      $('startBtn').disabled = false;
-      $('startBtn').textContent = 'Start camera';
-    }
+    activeDeviceId = getActiveTrackDeviceId();
   }
-}
 
-// -------------------------------
-// QR SCANNER
-// -------------------------------
+  /* =========================================================
+     START CAMERA
+     ========================================================= */
+  async function startCamera(preferredDeviceId) {
+    if (cameraStarting || stream) return;
 
-async function scanFrame() {
-  if (
-    scanInProgress ||
-    !stream ||
-    video.readyState < 2 ||
-    video.videoWidth === 0
-  ) return;
+    clearError();
+    if (!updateCameraDiagnostics()) return;
 
-  scanInProgress = true;
+    cameraStarting = true;
+    lastScanned = '';
 
-  try {
-    let text = null;
+    $('startBtn').disabled = true;
+    $('startBtn').textContent = 'Requesting permission…';
+    setStatus('Requesting camera permission…', 'pending');
 
-    if (detector) {
-      const codes = await detector.detect(video);
+    try {
+      const newStream = preferredDeviceId
+        ? await openStreamWith({ deviceId: { exact: preferredDeviceId } })
+        : await openStreamWith({ facingMode: { ideal: 'environment' } });
 
-      if (codes.length) {
-        text = codes[0].rawValue;
+      await attachStream(newStream);
+      await refreshDeviceList();
+
+      // If the browser handed us a front/selfie camera while a rear camera
+      // exists, quietly switch to the main camera.
+      const currentId = getActiveTrackDeviceId();
+      const best = pickMainCamera();
+
+      if (currentId && best && best.deviceId && best.deviceId !== currentId) {
+        const curIndex = videoDevices.findIndex((d) => d.deviceId === currentId);
+        const bestIndex = videoDevices.findIndex((d) => d.deviceId === best.deviceId);
+        const curScore = curIndex >= 0 ? cameraScore(videoDevices[curIndex], curIndex) : -1;
+        const bestScore = bestIndex >= 0 ? cameraScore(videoDevices[bestIndex], bestIndex) : -1;
+
+        if (bestScore - curScore >= 50) {
+          await switchToDevice(best.deviceId, { silent: true });
+        }
+      }
+
+      detector = null;
+      if ('BarcodeDetector' in window) {
+        try {
+          const formats = await window.BarcodeDetector.getSupportedFormats();
+          if (!formats || formats.includes('qr_code')) {
+            detector = new window.BarcodeDetector({ formats: ['qr_code'] });
+          }
+        } catch (_) { detector = null; }
+      }
+
+      if (!detector && typeof window.jsQR !== 'function') {
+        throw new Error('QR scanning library failed to load. Check your connection.');
+      }
+
+      startScanLoop();
+      setStatus('Camera running — point it at a QR code.', 'live');
+      setCameraHelp('Camera connected. Scanning…', 'good');
+
+      $('startBtn').textContent = 'Camera running';
+      $('stopBtn').disabled = false;
+
+    } catch (err) {
+      showError(explainCameraError(err));
+      setStatus('Camera could not start.', 'error');
+      stopCamera({ keepStatus: true });
+      setCameraHelp(explainCameraError(err), 'bad');
+    } finally {
+      cameraStarting = false;
+      if (!stream) {
+        $('startBtn').disabled = false;
+        $('startBtn').textContent = 'Start camera';
       }
     }
+  }
 
-    if (!text && typeof window.jsQR === 'function') {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
+  /* =========================================================
+     SWITCH CAMERA
+     ========================================================= */
+  async function switchToDevice(deviceId, options) {
+    const opts = options || {};
+    if (!deviceId || switchingCamera) return;
 
-      ctx.drawImage(video, 0, 0);
+    switchingCamera = true;
+    const previousId = getActiveTrackDeviceId() || activeDeviceId;
 
-      const image = ctx.getImageData(
-        0, 0, canvas.width, canvas.height
-      );
+    if (!opts.silent) setStatus('Switching camera…', 'pending');
 
-      const code = jsQR(
-        image.data,
-        image.width,
-        image.height,
+    try {
+      stopStreamTracks();
+
+      const newStream = await openStreamWith({ deviceId: { exact: deviceId } });
+      await attachStream(newStream);
+
+      if (!opts.silent) {
+        setStatus('Camera switched.', 'live');
+      }
+    } catch (err) {
+      showError('Could not switch camera. ' + explainCameraError(err));
+
+      if (previousId) {
+        try {
+          const restored = await openStreamWith({ deviceId: { exact: previousId } });
+          await attachStream(restored);
+        } catch (_) {
+          stopCamera({ keepStatus: true });
+          setStatus('Camera lost. Press Start camera to reconnect.', 'error');
+        }
+      } else {
+        stopCamera({ keepStatus: true });
+        setStatus('Camera lost. Press Start camera to reconnect.', 'error');
+      }
+    } finally {
+      switchingCamera = false;
+      renderCameraSelect();
+    }
+  }
+
+  async function cycleCamera() {
+    if (!stream) { startCamera(); return; }
+    if (videoDevices.length < 2) return;
+
+    const index = videoDevices.findIndex((d) => d.deviceId === activeDeviceId);
+    const next = videoDevices[(index + 1) % videoDevices.length];
+    if (next) await switchToDevice(next.deviceId);
+  }
+
+  /* =========================================================
+     SCAN LOOP
+     ========================================================= */
+  function startScanLoop() {
+    stopScanLoop();
+    scanTimer = window.setInterval(scanFrame, SCAN_INTERVAL_MS);
+  }
+
+  function stopScanLoop() {
+    if (scanTimer !== null) {
+      window.clearInterval(scanTimer);
+      scanTimer = null;
+    }
+  }
+
+  function grabFrame() {
+    const vw = video.videoWidth;
+    const vh = video.videoHeight;
+    if (!vw || !vh) return null;
+
+    const scale = Math.min(1, MAX_SCAN_EDGE / Math.max(vw, vh));
+    const w = Math.max(1, Math.round(vw * scale));
+    const h = Math.max(1, Math.round(vh * scale));
+
+    canvas.width = w;
+    canvas.height = h;
+    ctx.drawImage(video, 0, 0, w, h);
+
+    return ctx.getImageData(0, 0, w, h);
+  }
+
+  async function scanFrame() {
+    if (scanInProgress || !stream) return;
+    if (video.readyState < 2 || !video.videoWidth) return;
+
+    scanInProgress = true;
+
+    try {
+      let text = null;
+
+      if (detector) {
+        try {
+          const codes = await detector.detect(video);
+          if (codes && codes.length) text = codes[0].rawValue;
+        } catch (_) { /* fall back to jsQR */ }
+      }
+
+      if (!text && typeof window.jsQR === 'function') {
+        const image = grabFrame();
+        if (image) {
+          const code = window.jsQR(
+            image.data, image.width, image.height,
+            { inversionAttempts: 'attemptBoth' }
+          );
+          if (code && code.data) text = code.data;
+        }
+      }
+
+      if (text && text !== lastScanned) {
+        lastScanned = text;
+        stopCamera({ keepStatus: true });
+
+        const ok = processContent(text);
+        setStatus(
+          ok ? 'QR code detected — message decoded.' : 'QR code detected, but decoding failed.',
+          ok ? 'live' : 'error'
+        );
+      }
+
+    } catch (_) {
+      // Ignore individual frame errors and keep scanning.
+    } finally {
+      scanInProgress = false;
+    }
+  }
+
+  /* =========================================================
+     STOP CAMERA
+     ========================================================= */
+  function stopCamera(options) {
+    const opts = options || {};
+
+    stopScanLoop();
+    stopStreamTracks();
+
+    try { video.pause(); } catch (_) {}
+    video.srcObject = null;
+    video.hidden = true;
+
+    $('scannerFrame').classList.remove('active');
+    $('placeholder').style.display = 'grid';
+
+    $('startBtn').disabled = false;
+    $('startBtn').textContent = 'Start camera';
+    $('stopBtn').disabled = true;
+
+    scanInProgress = false;
+    activeDeviceId = null;
+
+    if (!opts.keepStatus) {
+      setStatus('Scanner is stopped.', null);
+    }
+
+    if (isCameraSupported() && window.isSecureContext && window.self === window.top) {
+      setCameraHelp('Camera ready. Choose a camera and press Start camera.', 'good');
+    }
+
+    renderCameraSelect();
+  }
+
+  /* =========================================================
+     IMAGE UPLOAD
+     ========================================================= */
+  async function scanImage(file) {
+    clearError();
+
+    if (!file) return;
+
+    if (typeof window.jsQR !== 'function') {
+      showError('QR library failed to load. Check your internet connection.');
+      return;
+    }
+
+    setStatus('Reading image…', 'pending');
+
+    try {
+      const bitmap = await createImageBitmap(file);
+
+      const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
+      const w = Math.max(1, Math.round(bitmap.width * scale));
+      const h = Math.max(1, Math.round(bitmap.height * scale));
+
+      canvas.width = w;
+      canvas.height = h;
+      ctx.drawImage(bitmap, 0, 0, w, h);
+      bitmap.close();
+
+      const image = ctx.getImageData(0, 0, w, h);
+
+      const code = window.jsQR(
+        image.data, image.width, image.height,
         { inversionAttempts: 'attemptBoth' }
       );
 
-      if (code) text = code.data;
+      if (!code || !code.data) {
+        throw new Error('No QR code was found in this image.');
+      }
+
+      processContent(code.data);
+
+    } catch (err) {
+      showError(err.message || 'Could not read this image.');
+      setStatus('Image could not be decoded.', 'error');
     }
-
-    if (text && text !== lastScanned) {
-      lastScanned = text;
-      processContent(text);
-
-      setStatus('QR detected and decoded!');
-      stopCamera();
-    }
-
-  } catch (_) {
-    // Ignore individual frame errors.
-  } finally {
-    scanInProgress = false;
-  }
-}
-
-// -------------------------------
-// STOP CAMERA
-// -------------------------------
-
-function stopCamera() {
-  if (scanLoop) {
-    clearInterval(scanLoop);
-    scanLoop = null;
   }
 
-  if (stream) {
-    stream.getTracks().forEach(track => track.stop());
-    stream = null;
-  }
+  /* =========================================================
+     EVENT WIRING
+     ========================================================= */
+  $('startBtn').addEventListener('click', () => startCamera());
 
-  video.pause();
-  video.srcObject = null;
-  video.hidden = true;
+  $('stopBtn').addEventListener('click', () => {
+    lastScanned = '';
+    stopCamera();
+  });
 
-  $('scannerFrame').classList.remove('active');
-  $('placeholder').style.display = 'block';
+  $('switchBtn').addEventListener('click', cycleCamera);
 
-  $('startBtn').disabled = false;
-  $('startBtn').textContent = 'Start camera';
-  $('stopBtn').disabled = true;
+  $('cameraSelect').addEventListener('change', async (event) => {
+    const deviceId = event.target.value;
+    if (!deviceId) return;
 
-  scanInProgress = false;
-}
-
-// -------------------------------
-// IMAGE UPLOAD
-// -------------------------------
-
-async function scanImage(file) {
-  clearError();
-
-  if (!file) return;
-
-  if (!window.jsQR) {
-    showError('QR library failed to load. Check internet.');
-    return;
-  }
-
-  try {
-    const bitmap = await createImageBitmap(file);
-
-    canvas.width = bitmap.width;
-    canvas.height = bitmap.height;
-
-    ctx.drawImage(bitmap, 0, 0);
-    bitmap.close();
-
-    const image = ctx.getImageData(
-      0, 0, canvas.width, canvas.height
-    );
-
-    const code = jsQR(
-      image.data,
-      image.width,
-      image.height,
-      { inversionAttempts: 'attemptBoth' }
-    );
-
-    if (!code) {
-      throw new Error('No QR code found in this image.');
-    }
-
-    processContent(code.data);
-
-  } catch (err) {
-    showError(err.message);
-  }
-}
-
-// -------------------------------
-// BUTTON EVENTS
-// -------------------------------
-
-$('startBtn').addEventListener('click', startCamera);
-
-$('stopBtn').addEventListener('click', () => {
-  stopCamera();
-  setStatus('Scanner stopped.');
-});
-
-$('imageInput').addEventListener('change', event => {
-  scanImage(event.target.files[0]);
-});
-
-$('decodeBtn').addEventListener('click', () => {
-  processContent($('manualInput').value);
-});
-
-$('clearBtn').addEventListener('click', () => {
-  $('manualInput').value = '';
-  $('resultContent').classList.remove('visible');
-  $('resultEmpty').style.display = 'grid';
-  clearError();
-  setStatus('Scanner stopped.');
-});
-
-// -------------------------------
-// COPY BUTTONS
-// -------------------------------
-
-document.querySelectorAll('[data-copy]').forEach(button => {
-  button.addEventListener('click', async () => {
-    const value = $(button.dataset.copy).textContent;
-
-    try {
-      await navigator.clipboard.writeText(value);
-
-      button.textContent = 'Copied!';
-
-      setTimeout(() => {
-        button.textContent = 'Copy';
-      }, 1100);
-
-    } catch (_) {
-      showError('Clipboard blocked. Copy the text manually.');
+    if (!stream) {
+      await startCamera(deviceId);
+    } else if (deviceId !== getActiveTrackDeviceId()) {
+      await switchToDevice(deviceId);
     }
   });
-});
 
-window.addEventListener('pagehide', stopCamera);
+  $('imageInput').addEventListener('change', (event) => {
+    const file = event.target.files && event.target.files[0];
+    scanImage(file);
+    event.target.value = ''; // allow re-selecting the same file
+  });
 
-updateCameraDiagnostics();
+  $('decodeBtn').addEventListener('click', () => {
+    processContent($('manualInput').value);
+  });
+
+  $('clearBtn').addEventListener('click', () => {
+    $('manualInput').value = '';
+    $('resultContent').classList.remove('visible');
+    $('resultEmpty').style.display = 'grid';
+    clearError();
+    lastScanned = '';
+    setStatus('Cleared.', null);
+  });
+
+  document.querySelectorAll('[data-copy]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const target = $(button.dataset.copy);
+      if (!target) return;
+
+      const value = target.textContent;
+
+      try {
+        await navigator.clipboard.writeText(value);
+      } catch (_) {
+        // Fallback for browsers without the async clipboard API.
+        const helper = document.createElement('textarea');
+        helper.value = value;
+        helper.style.position = 'fixed';
+        helper.style.opacity = '0';
+        document.body.appendChild(helper);
+        helper.select();
+        try { document.execCommand('copy'); }
+        catch (__) { showError('Clipboard blocked. Copy the text manually.'); }
+        document.body.removeChild(helper);
+      }
+
+      const original = button.textContent;
+      button.textContent = 'Copied!';
+      window.setTimeout(() => { button.textContent = original; }, 1100);
+    });
+  });
+
+  // Keep the camera list fresh when devices are plugged in or removed.
+  if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) {
+    navigator.mediaDevices.addEventListener('devicechange', () => {
+      refreshDeviceList();
+    });
+  }
+
+  // Release the camera when the page is hidden or unloaded.
+  window.addEventListener('pagehide', () => stopCamera({ keepStatus: true }));
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && stream) {
+      stopCamera({ keepStatus: true });
+      setStatus('Scanner paused (tab hidden).', null);
+    }
+  });
+
+  /* =========================================================
+     INIT
+     ========================================================= */
+  initTheme();
+  updateCameraDiagnostics();
+  refreshDeviceList();
+})();
 </script>
-
 </body>
 </html>
